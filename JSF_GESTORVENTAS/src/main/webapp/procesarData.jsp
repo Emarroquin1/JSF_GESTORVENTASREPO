@@ -1,3 +1,6 @@
+<%@page import="org.json.simple.JSONArray"%>
+<%@page import="java.util.List"%>
+<%@page import="service.CategoriaService"%>
 <%@page import="org.json.simple.JSONObject"%>
 <%@page import="model.Categoria"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
@@ -7,33 +10,46 @@
 // Recibe los datos del POST
 
 String key = request.getParameter("key");
+
+CategoriaService categoriaService = new CategoriaService();
 JSONObject jsonResponse = new JSONObject();
-
 if (key != null) {
-    switch (key) {
-        case "guardarCategoria":
-            String nombreCategoria = request.getParameter("nombreCategoria");
-            String descripcion = request.getParameter("descripcion");
-            // Realiza la operación de guardar la categoría
-            // ...
+	switch (key) {
+	case "guardarCategoria":
+		
+		String nombreCategoria = request.getParameter("nombreCategoria");
+		String descripcion = request.getParameter("descripcion");
 
-            // Establece el tipo de respuesta como "éxito" y proporciona un mensaje
-            jsonResponse.put("tipo", "éxito");
-            jsonResponse.put("mensaje", "Categoría guardada exitosamente");
-            break;
-        // Otras operaciones
-    }
+		Categoria categoria = new Categoria();
+		categoria.setActivo(true);
+		categoria.setNombreCategoria(nombreCategoria);
+		categoria.setDescripcion(descripcion);
+		jsonResponse =categoriaService.crearCategoria(categoria);
+		break;
+	// Otras operaciones
+	}
+
+	switch (key) {
+	case "getCategorias":
+
+	
+		jsonResponse = categoriaService.obtenerTodasLasCategorias();
+
+	
+		break;
+
+	// Otras operaciones
+	}
 } else {
-    // Si no se proporciona un "key", establece una respuesta de error
-    jsonResponse.put("tipo", "error");
-    jsonResponse.put("mensaje", "Operación no válida");
+	// Si no se proporciona un "key", establece una respuesta de error
+	jsonResponse.put("tipo", "error");
+	jsonResponse.put("mensaje", "Operación no válida");
 }
-
-// Establece el tipo de contenido de la respuesta
+String jsonString = jsonResponse.toString();
+// Configurar la respuesta HTTP
 response.setContentType("application/json");
 response.setCharacterEncoding("UTF-8");
 
-// Escribe la respuesta JSON en el flujo de respuesta
-response.getWriter().write(jsonResponse.toString());
-
+// Enviar la respuesta
+response.getWriter().write(jsonString);
 %>

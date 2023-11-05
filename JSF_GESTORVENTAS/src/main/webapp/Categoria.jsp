@@ -7,41 +7,25 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Inicio</title>
-<link rel="stylesheet"
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-	integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-	crossorigin="anonymous">
+<title>CRUD CATEGORIAS</title>
 </head>
 <jsp:include page="menu.jsp" />
 
 
 <body>
 
-	<%
-	CategoriaService categoriaService = new CategoriaService();
-
-	List<Categoria> listaCategorias = categoriaService.obtenerTodasLasCategorias();
-	%>
-
-
 
 	<div class="container mt-5">
 		<div class="text-center">
-			<img src="pngwing.com.png" alt="Logo Mapfre" width="150">
-			<h1>Bienvenido</h1>
-			<h4>Administración de categorias</h4>
-			<p></p>
+			<h1>Administración de categorias</h1>
 		</div>
 		<div class="container mt-5">
-			<h3>
-				Cantidad de Categorías: <b style="color: red"> <%=listaCategorias.size()%></b>
-			</h3>
+			
 			<!-- Button trigger modal -->
 			<button type="button" class="btn btn-primary" data-bs-toggle="modal"
 				data-bs-target="#exampleModal">Agregar Categoria</button>
 
-			<!-- Modal -->
+	
 
 			<!-- Modal -->
 			<div class="modal fade" id="exampleModal" tabindex="-1"
@@ -80,7 +64,7 @@
 		</div>
 
 		<h2>Listado de Categorías</h2>
-		<table class="table table-bordered">
+		<table class="table table-bordered" id="miTabla">
 			<thead>
 				<tr>
 					<th>Nombre de Categoría</th>
@@ -90,35 +74,82 @@
 				</tr>
 			</thead>
 			<tbody>
-				<%
-				for (Categoria categoria : listaCategorias) {
-				%>
-				<tr>
-					<td><%=categoria.getNombreCategoria()%></td>
-					<td><%=categoria.getDescripcion()%></td>
-					<td><%=categoria.getActivo()%></td>
-					<td>
-						<!-- Botón para eliminar con SweetAlert -->
-						<button class="btn btn-danger"
-							onclick="eliminarCategoria('<%=categoria.getNombreCategoria()%>')">Eliminar</button>
-					</td>
-					<td>
-						<!-- Botón para modificar con SweetAlert -->
-						<button class="btn btn-primary"
-							onclick="modificarCategoria('<%=categoria.getNombreCategoria()%>')">Modificar</button>
-					</td>
-				</tr>
-				<%
-				}
-				%>
+
 			</tbody>
 		</table>
 	</div>
 
+<jsp:include page="scripts.jsp" />
 
-
-
+	<!-- Agrega esto a tu archivo HTML para incluir la biblioteca jQuery -->
 	<script>
+		function cargarTabla() {
+			$.ajax({
+						type : "POST",
+						url : "procesarData.jsp",
+						data : {
+							key : "getCategorias"
+						// Otras variables de solicitud si es necesario
+						},
+						success : function(data) {
+							console.log(data['categorias']);
+							// Comprueba si la respuesta es un arreglo
+							// Comprueba si la respuesta es un arreglo
+							if (Array.isArray(data['categorias'])) {
+								console.log('entro');
+								var table = document.getElementById("miTabla");
+								var tbody = table.getElementsByTagName("tbody")[0];
+
+								for (var i = 0; i < data['categorias'].length; i++) {
+									var row = tbody.insertRow(i);
+									var cell1 = row.insertCell(0);
+									var cell2 = row.insertCell(1);
+									var cell3 = row.insertCell(2);
+									var cell4 = row.insertCell(3);
+									cell1.innerHTML = data['categorias'][i].nombreCategoria;
+									cell2.innerHTML = data['categorias'][i].descripcion;
+
+									// Agregar botón de modificar con estilo Bootstrap
+									var modificarButton = document
+											.createElement("button");
+									modificarButton.className = "btn btn-primary";
+									modificarButton.innerHTML = "Modificar";
+									// Asigna un evento onclick para manejar la acción de modificar
+									modificarButton.onclick = function() {
+										// Agrega tu lógica para modificar aquí
+										var rowIndex = this.parentElement.parentElement.rowIndex - 1;
+										var categoriaSeleccionada = data['categorias'][i].categoriaId;
+										// Realiza la operación de modificación con la categoría seleccionada
+									};
+
+									// Agregar botón de eliminar con estilo Bootstrap
+									var eliminarButton = document
+											.createElement("button");
+									eliminarButton.className = "btn btn-danger";
+									eliminarButton.innerHTML = "Eliminar";
+									// Asigna un evento onclick para manejar la acción de eliminar
+									eliminarButton.onclick = function() {
+										// Agrega tu lógica para eliminar aquí
+										var rowIndex = this.parentElement.parentElement.rowIndex - 1;
+										var categoriaSeleccionada = data['categorias'][i].categoriaId;
+										// Realiza la operación de eliminación con la categoría seleccionada
+									};
+
+									cell3.appendChild(modificarButton);
+									cell4.appendChild(eliminarButton);
+								}
+							}
+
+						},
+						error : function(error) {
+							console.log("Error en la solicitud AJAX: " + error);
+						}
+					});
+		}
+		document.addEventListener("DOMContentLoaded", function() {
+			cargarTabla();
+
+		});
 		function guardarCategoria() {
 			// Obtener los valores de los campos del modal
 			var nombreCategoria = $("#nombreCategoria").val();
@@ -128,8 +159,8 @@
 			var data = {
 				nombreCategoria : nombreCategoria,
 				descripcion : descripcion,
-				key:'guardarCategoria'
-				
+				key : 'guardarCategoria'
+
 			};
 			console.log(data)
 			// Realizar una solicitud AJAX para enviar los datos a "procesarData.jsp"
@@ -157,16 +188,8 @@
 
 		}
 	</script>
-	<script
-		src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
-		integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
-		crossorigin="anonymous"></script>
-	<script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
-		integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
-		crossorigin="anonymous"></script>
 
-	<!-- Agrega esto a tu archivo HTML para incluir la biblioteca jQuery -->
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
 </body>
 </html>
