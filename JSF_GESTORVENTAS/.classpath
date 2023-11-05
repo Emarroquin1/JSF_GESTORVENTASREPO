@@ -8,7 +8,52 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="D:/Descargas/mysql-connector-j-8.1.0/mysql-connector-j-8.1.0/mysql-connector-j-8.1.0.jar">
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 10.1/lib/servlet-api.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Descargas/javax-inject.jar/javax-inject.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Descargas/jar_files/cdi-api-2.0.SP1.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Descargas/jar_files/javax.el-api-3.0.0.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Descargas/jar_files/javax.interceptor-api-1.2.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Descargas/jar_files (1)/spring-beans-6.0.13.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Descargas/jar_files (1)/spring-core-6.0.13.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Descargas/jar_files (1)/spring-jcl-6.0.13.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Descargas/mysql-connector-java-8.0.11.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Descargas/json-simple-1.1.jar/json-simple-1.1.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>

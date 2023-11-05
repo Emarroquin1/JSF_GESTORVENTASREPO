@@ -2,7 +2,9 @@ package repository;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +13,20 @@ import model.Categoria;
 
 public class Conexion implements CategoriaRepository {
 
-	private final String dbUrl = "jdbc:mysql://localhost:3306/dbventas";
-
-	private Connection conectar() throws Exception {
+	public final String dbUrl = "jdbc:mysql://localhost:3306/dbventas?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+	public final String driver ="com.mysql.jdbc.Driver";
+	public Connection conectar() throws Exception {
 		Connection con = null;
 		// TODO Auto-generated method stub
 		try {
+			Class.forName(driver);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("Error al cargar el driver: " + e.getMessage());
+		}
+		try {
 
-			Class.forName("com.mysql.cj.jdbc.Driver");
-
+	
 			String username = "root";
 			String password = "";
 
@@ -37,8 +44,7 @@ public class Conexion implements CategoriaRepository {
 	public static void main(String[] arg) throws Exception {
 		
 		Conexion conexion = new Conexion();
-		conexion.obtenerTodasLasCategorias();
-		
+		conexion.conectar();
 	}
 	
 	@Override
@@ -46,7 +52,7 @@ public class Conexion implements CategoriaRepository {
 		Connection con = this.conectar();
 		List<Categoria> lista = new ArrayList<Categoria>();
 		
-		String query="SELECT * FROM Categorias";
+		String query="SELECT * FROM Categorias WHERE activo = 1";
 		try {
 			Statement stmt = con.createStatement();
 			ResultSet res = stmt.executeQuery(query);
@@ -56,8 +62,7 @@ public class Conexion implements CategoriaRepository {
 				categoria.setCategoriasID(res.getInt("categoriasID"));
 				categoria.setNombreCategoria(res.getString("nombre_categoria"));
 				categoria.setDescripcion(res.getString("descripcion"));
-				categoria.setActivo(res.getBoolean("activo"));
-				System.out.println("Nombre: "+categoria.getNombreCategoria());
+				categoria.setActivo(res.getBoolean("activo"));	
 				lista.add(categoria);
 			}
 			
@@ -75,28 +80,146 @@ public class Conexion implements CategoriaRepository {
 
 
 	@Override
-	public Categoria crearCategoria(Categoria categoria) {
-		// TODO Auto-generated method stub
-		return null;
+	public Categoria crearCategoria(Categoria categoria) throws Exception {
+	    Connection con = this.conectar();
+	    String query = "INSERT INTO Categorias (nombre_categoria, descripcion, activo) VALUES (?, ?, ?)";
+	    PreparedStatement pstmt = null;
+
+	    try {
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setString(1, categoria.getNombreCategoria());
+	        pstmt.setString(2, categoria.getDescripcion());
+	        pstmt.setBoolean(3, categoria.getActivo());
+
+	        pstmt.executeUpdate();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al guardar la categoría: " + e.getMessage());
+	    } finally {
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+		return categoria;
+	}
+	
+	@Override
+	public Categoria obtenerCategoriaPorID(int categoriaID) throws Exception {
+	    Connection con = this.conectar();
+
+	    String query = "SELECT * FROM Categorias WHERE categoriasID = ?";
+	    PreparedStatement pstmt = null;
+	    ResultSet res = null;
+	    Categoria categoria = null;
+	    
+	    try {
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setInt(1, categoriaID);
+	        
+	        res = pstmt.executeQuery();
+	        
+	        if (res.next()) {
+	            categoria = new Categoria();
+	            categoria.setCategoriasID(res.getInt("categoriasID"));
+	            categoria.setNombreCategoria(res.getString("nombre_categoria"));
+	            categoria.setDescripcion(res.getString("descripcion"));
+	            categoria.setActivo(res.getBoolean("activo"));
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al obtener la categoría por ID: " + e.getMessage());
+	    } finally {
+	        if (res != null) {
+	            try {
+	                res.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+	
+	    return categoria;
 	}
 
+
 	@Override
-	public Categoria obtenerCategoriaPorID(int categoriaID) {
-		// TODO Auto-generated method stub
-		return null;
+	public Categoria actualizarCategoria(Categoria categoria) throws Exception {
+	    Connection con = this.conectar();
+	    String query = "UPDATE Categorias SET nombre_categoria = ?, descripcion = ?, activo = ? WHERE categoriasID = ?";
+	    PreparedStatement pstmt = null;
+
+	    try {
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setString(1, categoria.getNombreCategoria());
+	        pstmt.setString(2, categoria.getDescripcion());
+	        pstmt.setBoolean(3, categoria.getActivo());
+	        pstmt.setInt(4, categoria.getCategoriasID());
+
+	        int filasActualizadas = pstmt.executeUpdate();
+
+	        if (filasActualizadas == 1) {
+	            return categoria; // Devuelve la categoría actualizada
+	        } else {
+	            throw new Exception("No se pudo actualizar la categoría. No se encontró una categoría con el ID proporcionado.");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al actualizar la categoría: " + e.getMessage());
+	    } finally {
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
 	}
 
 
 	@Override
-	public Categoria actualizarCategoria(Categoria categoria) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public Boolean eliminarCategoria(int categoriaID) throws Exception {
+	    Connection con = this.conectar();
+	    String query = "UPDATE Categorias SET activo = false WHERE categoriasID = ?";
+	    PreparedStatement pstmt = null;
 
-	@Override
-	public void eliminarCategoria(int categoriaID) {
-		// TODO Auto-generated method stub
+	    try {
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setInt(1, categoriaID);
 
+	        int filasActualizadas = pstmt.executeUpdate();
+
+	        if (filasActualizadas != 1) {
+	            throw new Exception("No se pudo eliminar la categoría. No se encontró una categoría con el ID proporcionado.");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al eliminar la categoría: " + e.getMessage());
+	    } finally {
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+		return true;
 	}
 
 }
