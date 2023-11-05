@@ -20,12 +20,12 @@
 			<h1>Administración de categorias</h1>
 		</div>
 		<div class="container mt-5">
-			
+
 			<!-- Button trigger modal -->
 			<button type="button" class="btn btn-primary" data-bs-toggle="modal"
 				data-bs-target="#exampleModal">Agregar Categoria</button>
 
-	
+
 
 			<!-- Modal -->
 			<div class="modal fade" id="exampleModal" tabindex="-1"
@@ -52,6 +52,7 @@
 									placeholder="Ingrese la descripción de la categoría"></textarea>
 							</div>
 						</div>
+						<input Type="hidden" id="categoriaId" value="0">
 						<div class="modal-footer">
 							<button type="button" class="btn btn-secondary"
 								data-bs-dismiss="modal">Cerrar</button>
@@ -79,12 +80,56 @@
 		</table>
 	</div>
 
-<jsp:include page="scripts.jsp" />
+	<jsp:include page="scripts.jsp" />
 
 	<!-- Agrega esto a tu archivo HTML para incluir la biblioteca jQuery -->
 	<script>
-		function cargarTabla() {
+		function eliminarCategoria(categoriaId) {
 			$.ajax({
+				type : "POST",
+				url : "procesarData.jsp",
+				data : {
+					key : "eliminarCategoria",
+					categoriaId : categoriaId
+				},
+				success : function(data) {
+					if (data.tipo === "éxito") {
+						Swal.fire({
+							icon : 'success',
+							title : 'Categoría eliminada exitosamente',
+							showConfirmButton : true,
+							timer : 1500
+						// Cierra automáticamente después de 1.5 segundos
+						});
+
+						cargarTabla();
+						// Realiza cualquier otra acción necesaria después de eliminar la categoría
+					} else {
+						Swal.fire({
+							icon : 'error',
+							title : 'Error',
+							text : 'Error al eliminar la categoría: '
+									+ data.mensaje
+						});
+					}
+				},
+				error : function(error) {
+					console.log("Error en la solicitud AJAX: " + error);
+				}
+			});
+		}
+
+		function cargarTabla() {
+			// Obtén la tabla y su cuerpo
+			var table = document.getElementById("miTabla");
+			var tbody = table.getElementsByTagName("tbody")[0];
+
+			// Elimina todas las filas existentes
+			while (tbody.hasChildNodes()) {
+				tbody.removeChild(tbody.firstChild);
+			}
+			$
+					.ajax({
 						type : "POST",
 						url : "procesarData.jsp",
 						data : {
@@ -116,10 +161,21 @@
 									modificarButton.innerHTML = "Modificar";
 									// Asigna un evento onclick para manejar la acción de modificar
 									modificarButton.onclick = function() {
-										// Agrega tu lógica para modificar aquí
-										var rowIndex = this.parentElement.parentElement.rowIndex - 1;
-										var categoriaSeleccionada = data['categorias'][i].categoriaId;
-										// Realiza la operación de modificación con la categoría seleccionada
+										// Obtiene la categoría seleccionada
+										var rowIndex = this.parentElement.parentElement.rowIndex - 1; // Resta 1 para obtener el índice correcto
+										var categoriaSeleccionada = data['categorias'][rowIndex]; // Accede a la categoría seleccionada
+
+										// Rellena los campos del modal con los datos de la categoría
+										document
+												.getElementById("nombreCategoria").value = categoriaSeleccionada.nombreCategoria;
+										document.getElementById("descripcion").value = categoriaSeleccionada.descripcion;
+										document.getElementById("categoriaId").value = categoriaSeleccionada.categoriaId;
+
+										// Abre el modal
+										var myModal = new bootstrap.Modal(
+												document
+														.getElementById('exampleModal'));
+										myModal.show();
 									};
 
 									// Agregar botón de eliminar con estilo Bootstrap
@@ -127,12 +183,14 @@
 											.createElement("button");
 									eliminarButton.className = "btn btn-danger";
 									eliminarButton.innerHTML = "Eliminar";
+									eliminarButton.dataset.categoriaId = data['categorias'][i].categoriaId; // Guarda el ID
+
 									// Asigna un evento onclick para manejar la acción de eliminar
 									eliminarButton.onclick = function() {
-										// Agrega tu lógica para eliminar aquí
-										var rowIndex = this.parentElement.parentElement.rowIndex - 1;
-										var categoriaSeleccionada = data['categorias'][i].categoriaId;
-										// Realiza la operación de eliminación con la categoría seleccionada
+										var categoriaSeleccionada = this.dataset.categoriaId; // Obtiene el ID desde el atributo personalizado
+
+										// Llama a la función eliminarCategoria con la categoría seleccionada
+										eliminarCategoria(categoriaSeleccionada);
 									};
 
 									cell3.appendChild(modificarButton);
@@ -150,38 +208,71 @@
 			cargarTabla();
 
 		});
+
+		function limpiarCampos() {
+    // Obtiene los elementos de entrada por su ID y establece su valor en cadena vacía
+    document.getElementById("nombreCategoria").value = "";
+    document.getElementById("descripcion").value = "";
+    document.getElementById("categoriaId").value = "0";
+}
+
 		function guardarCategoria() {
 			// Obtener los valores de los campos del modal
 			var nombreCategoria = $("#nombreCategoria").val();
 			var descripcion = $("#descripcion").val();
+			var categoriaId = $("#categoriaId").val();
 
-			// Crear un objeto con los datos
-			var data = {
+				limpiarCampos();
+				if(categoriaId > 0) {
+				
+				var data = {
+				categoriaId : categoriaId,
+				nombreCategoria : nombreCategoria,
+				descripcion : descripcion,
+				key: "modificarCategoria"
+				};
+				}else{
+					
+				var data = {
 				nombreCategoria : nombreCategoria,
 				descripcion : descripcion,
 				key : 'guardarCategoria'
-
-			};
-			console.log(data)
+				};
+				}		
+		
 			// Realizar una solicitud AJAX para enviar los datos a "procesarData.jsp"
 			$.ajax({
 				type : "POST", // Método de la solicitud
 				url : "procesarData.jsp", // URL del archivo que manejará los datos
 				data : data, // Los datos que deseas enviar
 				success : function(response) {
-					// Aquí puedes manejar la respuesta del servidor
-					console.log("Respuesta:", response);
-					// Puedes agregar más acciones aquí, como cerrar el modal, mostrar un mensaje, etc.
+					if(categoriaId>0){
+						Swal.fire({
+						icon : 'success',
+						title : 'Categoría Actualizada exitosamente',
+						showConfirmButton : true,
+						timer : 1500
+				
+					});	
+					}else{
+							Swal.fire({
+						icon : 'success',
+						title : 'Categoría Almacenada exitosamente',
+						showConfirmButton : true,
+						timer : 1500
+				
+					});
+					}
+				
+					//cargamos la tabla
+					cargarTabla();
+					
 				},
 				error : function(xhr, status, error) {
 					// Manejar errores en caso de que la solicitud AJAX falle
 					console.log("Error en la solicitud:", status, error);
 				}
 			});
-		}
-
-		function eliminarCategoria(id) {
-
 		}
 
 		function modificarCategoria(nombre) {

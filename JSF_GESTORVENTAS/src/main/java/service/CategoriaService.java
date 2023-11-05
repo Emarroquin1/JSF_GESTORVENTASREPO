@@ -57,15 +57,23 @@ public class CategoriaService {
 	}
 
 	// Actualizar una categoría existente
-	public Categoria actualizarCategoria(Categoria categoria) throws Exception {
+	public JSONObject actualizarCategoria(Categoria categoria) throws Exception {
 		Conexion con = new Conexion();
-		return con.actualizarCategoria(categoria);
+		con.actualizarCategoria(categoria);
+		jsonResponse.put("tipo", "éxito");
+		jsonResponse.put("mensaje", "Categoría actualizada exitosamente");
+		jsonResponse.put("categoriaId", categoria.getCategoriasID());
+		return jsonResponse;
 	}
 
 	// Eliminar una categoría por su ID
-	public Boolean eliminarCategoria(int categoriaID) throws Exception {
+	public JSONObject eliminarCategoria(int categoriaID) throws Exception {
 		Conexion con = new Conexion();
-		return con.eliminarCategoria(categoriaID);
+		con.eliminarCategoria(categoriaID);
+		jsonResponse.put("tipo", "éxito");
+		jsonResponse.put("mensaje", "Categoría eliminada exitosamente");
+		jsonResponse.put("categoriaId",categoriaID);
+		return jsonResponse;
 	}
 
 	public static void main(String[] args) throws Exception {

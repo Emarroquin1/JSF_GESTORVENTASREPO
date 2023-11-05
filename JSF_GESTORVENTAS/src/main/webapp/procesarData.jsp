@@ -15,31 +15,42 @@ CategoriaService categoriaService = new CategoriaService();
 JSONObject jsonResponse = new JSONObject();
 if (key != null) {
 	switch (key) {
-	case "guardarCategoria":
+	case "modificarCategoria":
+		Categoria categoria = new Categoria();
+		String nombreCategoriaUpdate = request.getParameter("nombreCategoria");
+		String descripcionUpdate = request.getParameter("descripcion");
+		int categoriaId = Integer.parseInt(request.getParameter("categoriaId"));
+
 		
+		categoria.setCategoriasID(categoriaId);
+		categoria.setActivo(true);
+		categoria.setNombreCategoria(nombreCategoriaUpdate);
+		categoria.setDescripcion(descripcionUpdate);
+		jsonResponse = categoriaService.actualizarCategoria(categoria);
+		break;
+		
+	case "guardarCategoria":
+		Categoria categoriaSave = new Categoria();
 		String nombreCategoria = request.getParameter("nombreCategoria");
 		String descripcion = request.getParameter("descripcion");
 
-		Categoria categoria = new Categoria();
-		categoria.setActivo(true);
-		categoria.setNombreCategoria(nombreCategoria);
-		categoria.setDescripcion(descripcion);
-		jsonResponse =categoriaService.crearCategoria(categoria);
-		break;
-	// Otras operaciones
-	}
 
-	switch (key) {
+		categoriaSave.setActivo(true);
+		categoriaSave.setNombreCategoria(nombreCategoria);
+		categoriaSave.setDescripcion(descripcion);
+		jsonResponse = categoriaService.crearCategoria(categoriaSave);
+		break;
+
 	case "getCategorias":
-
-	
 		jsonResponse = categoriaService.obtenerTodasLasCategorias();
-
-	
 		break;
+	case "eliminarCategoria":
+		int id = Integer.parseInt(request.getParameter("categoriaId"));
 
-	// Otras operaciones
+		jsonResponse = categoriaService.eliminarCategoria(id);
+		break;
 	}
+
 } else {
 	// Si no se proporciona un "key", establece una respuesta de error
 	jsonResponse.put("tipo", "error");
