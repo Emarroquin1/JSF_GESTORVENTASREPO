@@ -67,6 +67,7 @@ public class ProveedorService {
 
         return jsonResponse;
     }
+    
     @SuppressWarnings("unchecked")
     public JSONObject actualizarProveedor(Proveedor proveedor) throws Exception {
         JSONObject jsonResponse = new JSONObject();

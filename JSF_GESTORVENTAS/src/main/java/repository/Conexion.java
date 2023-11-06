@@ -244,7 +244,7 @@ public class Conexion implements CategoriaRepository, ProveedorRepository {
 	@Override
 	public Proveedor crearProveedor(Proveedor proveedor) throws Exception {
 	    Connection con = this.conectar();
-	    String query = "INSERT INTO Proveedor (nombre_proveedor, contacto, direccion, activo) VALUES (?, ?, ?, ?)";
+	    String query = "INSERT INTO Proveedores (nombre_proveedor, contacto, direccion, activo) VALUES (?, ?, ?, ?)";
 	    PreparedStatement pstmt = null;
 	    ResultSet generatedKeys = null;
 	    try {
@@ -296,7 +296,7 @@ public class Conexion implements CategoriaRepository, ProveedorRepository {
 	public Proveedor obtenerProveedorPorID(int proveedorID) throws Exception {
 	    Connection con = this.conectar();
 
-	    String query = "SELECT * FROM Proveedor WHERE ProveedorID = ?";
+	    String query = "SELECT * FROM Proveedores WHERE ProveedoresID = ?";
 	    PreparedStatement pstmt = null;
 	    ResultSet res = null;
 	    Proveedor proveedor = null;
@@ -309,7 +309,7 @@ public class Conexion implements CategoriaRepository, ProveedorRepository {
 
 	        if (res.next()) {
 	            proveedor = new Proveedor();
-	            proveedor.setProveedorID(res.getInt("ProveedorID"));
+	            proveedor.setProveedorID(res.getInt("ProveedoresID"));
 	            proveedor.setNombreProveedor(res.getString("nombre_proveedor"));
 	            proveedor.setContacto(res.getString("contacto"));
 	            proveedor.setDireccion(res.getString("direccion"));
@@ -344,14 +344,14 @@ public class Conexion implements CategoriaRepository, ProveedorRepository {
 	    Connection con = this.conectar();
 	    List<Proveedor> lista = new ArrayList<Proveedor>();
 
-	    String query = "SELECT * FROM Proveedor WHERE activo = 1";
+	    String query = "SELECT * FROM Proveedores WHERE activo = 1";
 	    try {
 	        Statement stmt = con.createStatement();
 	        ResultSet res = stmt.executeQuery(query);
 
 	        while (res.next()) {
 	            Proveedor proveedor = new Proveedor();
-	            proveedor.setProveedorID(res.getInt("ProveedorID"));
+	            proveedor.setProveedorID(res.getInt("ProveedoresID"));
 	            proveedor.setNombreProveedor(res.getString("nombre_proveedor"));
 	            proveedor.setContacto(res.getString("contacto"));
 	            proveedor.setDireccion(res.getString("direccion"));
@@ -370,7 +370,7 @@ public class Conexion implements CategoriaRepository, ProveedorRepository {
 	@Override
 	public Proveedor actualizarProveedor(Proveedor proveedor) throws Exception {
 	    Connection con = this.conectar();
-	    String query = "UPDATE Proveedor SET nombre_proveedor = ?, contacto = ?, direccion = ?, activo = ? WHERE ProveedorID = ?";
+	    String query = "UPDATE Proveedores SET nombre_proveedor = ?, contacto = ?, direccion = ?, activo = ? WHERE ProveedoresID = ?";
 	    PreparedStatement pstmt = null;
 
 	    try {
@@ -408,7 +408,7 @@ public class Conexion implements CategoriaRepository, ProveedorRepository {
 	@Override
 	public boolean eliminarProveedor(int proveedorID) throws Exception {
 	    Connection con = this.conectar();
-	    String query = "UPDATE Proveedor SET activo = false WHERE ProveedorID = ?";
+	    String query = "UPDATE Proveedores SET activo = false WHERE ProveedoresID = ?";
 	    PreparedStatement pstmt = null;
 
 	    try {
