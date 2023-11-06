@@ -12,9 +12,9 @@ public class CategoriaService {
 
 	JSONObject jsonResponse = new JSONObject();
 
+	 @SuppressWarnings("unchecked")
 	public JSONObject crearCategoria(Categoria categoria) throws Exception {
 		Conexion con = new Conexion();
-
 		Categoria categoriaSave = con.crearCategoria(categoria);
 		// Establece el tipo de respuesta como "éxito" y proporciona un mensaje
 		jsonResponse.put("tipo", "éxito");
@@ -23,7 +23,8 @@ public class CategoriaService {
 		return jsonResponse;
 	}
 
-	// Leer una categoría por su ID
+	//Leer una categoría por su ID
+	 @SuppressWarnings("unchecked")
 	public Categoria obtenerCategoriaPorID(int categoriaID) throws Exception {
 		Conexion con = new Conexion();
 		Categoria categoria = con.obtenerCategoriaPorID(categoriaID);
@@ -32,6 +33,7 @@ public class CategoriaService {
 	}
 
 	// Leer todas las categorías
+	 @SuppressWarnings("unchecked")
 	public JSONObject obtenerTodasLasCategorias() throws Exception {
 		Conexion con = new Conexion();
 		List<Categoria> listaCategorias = con.obtenerTodasLasCategorias();
@@ -57,6 +59,7 @@ public class CategoriaService {
 	}
 
 	// Actualizar una categoría existente
+	 @SuppressWarnings("unchecked")
 	public JSONObject actualizarCategoria(Categoria categoria) throws Exception {
 		Conexion con = new Conexion();
 		con.actualizarCategoria(categoria);
@@ -67,6 +70,7 @@ public class CategoriaService {
 	}
 
 	// Eliminar una categoría por su ID
+	 @SuppressWarnings("unchecked")
 	public JSONObject eliminarCategoria(int categoriaID) throws Exception {
 		Conexion con = new Conexion();
 		con.eliminarCategoria(categoriaID);

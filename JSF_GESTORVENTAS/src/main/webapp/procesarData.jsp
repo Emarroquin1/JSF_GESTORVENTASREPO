@@ -1,3 +1,5 @@
+<%@page import="service.ProveedorService"%>
+<%@page import="model.Proveedor"%>
 <%@page import="org.json.simple.JSONArray"%>
 <%@page import="java.util.List"%>
 <%@page import="service.CategoriaService"%>
@@ -12,6 +14,9 @@
 String key = request.getParameter("key");
 
 CategoriaService categoriaService = new CategoriaService();
+
+ProveedorService proveedorService = new ProveedorService();
+
 JSONObject jsonResponse = new JSONObject();
 if (key != null) {
 	switch (key) {
@@ -49,6 +54,43 @@ if (key != null) {
 
 		jsonResponse = categoriaService.eliminarCategoria(id);
 		break;
+	case "modificarProveedor":
+	    Proveedor proveedor = new Proveedor();
+	    String nombreProveedorUpdate = request.getParameter("nombreProveedor");
+	    String contactoUpdate = request.getParameter("contacto");
+	    String direccionUpdate = request.getParameter("direccion");
+	    int proveedorId = Integer.parseInt(request.getParameter("proveedorId"));
+
+	    proveedor.setProveedorID(proveedorId);
+	    proveedor.setActivo(true);
+	    proveedor.setNombreProveedor(nombreProveedorUpdate);
+	    proveedor.setContacto(contactoUpdate);
+	    proveedor.setDireccion(direccionUpdate);
+	    jsonResponse = proveedorService.actualizarProveedor(proveedor);
+	    break;
+
+	case "guardarProveedor":
+	    Proveedor proveedorSave = new Proveedor();
+	    String nombreProveedor = request.getParameter("nombreProveedor");
+	    String contacto = request.getParameter("contacto");
+	    String direccion = request.getParameter("direccion");
+
+	    proveedorSave.setActivo(true);
+	    proveedorSave.setNombreProveedor(nombreProveedor);
+	    proveedorSave.setContacto(contacto);
+	    proveedorSave.setDireccion(direccion);
+	    jsonResponse = proveedorService.crearProveedor(proveedorSave);
+	    break;
+
+	case "getProveedores":
+	    jsonResponse = proveedorService.obtenerTodosLosProveedores();
+	    break;
+
+	case "eliminarProveedor":
+	    int idDelete = Integer.parseInt(request.getParameter("proveedorId"));
+	    jsonResponse = proveedorService.eliminarProveedor(idDelete);
+	    break;
+
 	}
 
 } else {

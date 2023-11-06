@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Categoria;
+import model.Proveedor;
 
-public class Conexion implements CategoriaRepository {
+public class Conexion implements CategoriaRepository, ProveedorRepository {
 
 	public final String dbUrl = "jdbc:mysql://localhost:3306/dbventas?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 	public final String driver = "com.mysql.jdbc.Driver";
@@ -239,5 +240,203 @@ public class Conexion implements CategoriaRepository {
 		}
 		return true;
 	}
+
+	@Override
+	public Proveedor crearProveedor(Proveedor proveedor) throws Exception {
+	    Connection con = this.conectar();
+	    String query = "INSERT INTO Proveedor (nombre_proveedor, contacto, direccion, activo) VALUES (?, ?, ?, ?)";
+	    PreparedStatement pstmt = null;
+	    ResultSet generatedKeys = null;
+	    try {
+	        pstmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+	        pstmt.setString(1, proveedor.getNombreProveedor());
+	        pstmt.setString(2, proveedor.getContacto());
+	        pstmt.setString(3, proveedor.getDireccion());
+	        pstmt.setBoolean(4, proveedor.isActivo());
+
+	        int affectedRows = pstmt.executeUpdate();
+
+	        if (affectedRows == 0) {
+	            throw new SQLException("La inserción falló, no se crearon registros.");
+	        }
+
+	        // Obtener el ID generado por la base de datos
+	        generatedKeys = pstmt.getGeneratedKeys();
+
+	        if (generatedKeys.next()) {
+	            int id = generatedKeys.getInt(1);
+	            proveedor.setProveedorID(id); // Establecer el ID en el objeto Proveedor
+	        } else {
+	            throw new SQLException("No se generó un ID para el proveedor.");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al guardar el proveedor: " + e.getMessage());
+	    } finally {
+	        if (generatedKeys != null) {
+	            try {
+	                generatedKeys.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+	    return proveedor;
+	}
+
+	@Override
+	public Proveedor obtenerProveedorPorID(int proveedorID) throws Exception {
+	    Connection con = this.conectar();
+
+	    String query = "SELECT * FROM Proveedor WHERE ProveedorID = ?";
+	    PreparedStatement pstmt = null;
+	    ResultSet res = null;
+	    Proveedor proveedor = null;
+
+	    try {
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setInt(1, proveedorID);
+
+	        res = pstmt.executeQuery();
+
+	        if (res.next()) {
+	            proveedor = new Proveedor();
+	            proveedor.setProveedorID(res.getInt("ProveedorID"));
+	            proveedor.setNombreProveedor(res.getString("nombre_proveedor"));
+	            proveedor.setContacto(res.getString("contacto"));
+	            proveedor.setDireccion(res.getString("direccion"));
+	            proveedor.setActivo(res.getBoolean("activo"));
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al obtener el proveedor por ID: " + e.getMessage());
+	    } finally {
+	        if (res != null) {
+	            try {
+	                res.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+
+	    return proveedor;
+	}
+
+	@Override
+	public List<Proveedor> obtenerTodosLosProveedor() throws Exception {
+	    Connection con = this.conectar();
+	    List<Proveedor> lista = new ArrayList<Proveedor>();
+
+	    String query = "SELECT * FROM Proveedor WHERE activo = 1";
+	    try {
+	        Statement stmt = con.createStatement();
+	        ResultSet res = stmt.executeQuery(query);
+
+	        while (res.next()) {
+	            Proveedor proveedor = new Proveedor();
+	            proveedor.setProveedorID(res.getInt("ProveedorID"));
+	            proveedor.setNombreProveedor(res.getString("nombre_proveedor"));
+	            proveedor.setContacto(res.getString("contacto"));
+	            proveedor.setDireccion(res.getString("direccion"));
+	            proveedor.setActivo(res.getBoolean("activo"));
+	            lista.add(proveedor);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al obtener la lista de Proveedor: " + e.getMessage());
+	    }
+
+	    con.close();
+	    return lista;
+	}
+
+	@Override
+	public Proveedor actualizarProveedor(Proveedor proveedor) throws Exception {
+	    Connection con = this.conectar();
+	    String query = "UPDATE Proveedor SET nombre_proveedor = ?, contacto = ?, direccion = ?, activo = ? WHERE ProveedorID = ?";
+	    PreparedStatement pstmt = null;
+
+	    try {
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setString(1, proveedor.getNombreProveedor());
+	        pstmt.setString(2, proveedor.getContacto());
+	        pstmt.setString(3, proveedor.getDireccion());
+	        pstmt.setBoolean(4, proveedor.isActivo());
+	        pstmt.setInt(5, proveedor.getProveedorID());
+
+	        int filasActualizadas = pstmt.executeUpdate();
+
+	        if (filasActualizadas == 1) {
+	            return proveedor; // Devuelve el proveedor actualizado
+	        } else {
+	            throw new Exception(
+	                "No se pudo actualizar el proveedor. No se encontró un proveedor con el ID proporcionado."
+	            );
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al actualizar el proveedor: " + e.getMessage());
+	    } finally {
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+	}
+
+	@Override
+	public boolean eliminarProveedor(int proveedorID) throws Exception {
+	    Connection con = this.conectar();
+	    String query = "UPDATE Proveedor SET activo = false WHERE ProveedorID = ?";
+	    PreparedStatement pstmt = null;
+
+	    try {
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setInt(1, proveedorID);
+
+	        int filasActualizadas = pstmt.executeUpdate();
+
+	        if (filasActualizadas != 1) {
+	            throw new Exception(
+	                "No se pudo eliminar el proveedor. No se encontró un proveedor con el ID proporcionado."
+	            );
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al eliminar el proveedor: " + e.getMessage());
+	    } finally {
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+	    return true;
+	}
+
 
 }

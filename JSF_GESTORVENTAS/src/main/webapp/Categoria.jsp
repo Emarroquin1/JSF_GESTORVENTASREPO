@@ -128,8 +128,7 @@
 			while (tbody.hasChildNodes()) {
 				tbody.removeChild(tbody.firstChild);
 			}
-			$
-					.ajax({
+			$.ajax({
 						type : "POST",
 						url : "procesarData.jsp",
 						data : {
@@ -138,7 +137,6 @@
 						},
 						success : function(data) {
 							console.log(data['categorias']);
-							// Comprueba si la respuesta es un arreglo
 							// Comprueba si la respuesta es un arreglo
 							if (Array.isArray(data['categorias'])) {
 								console.log('entro');
