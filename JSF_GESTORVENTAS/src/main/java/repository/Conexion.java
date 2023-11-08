@@ -10,9 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Categoria;
+import model.Producto;
 import model.Proveedor;
 
-public class Conexion implements CategoriaRepository, ProveedorRepository {
+public class Conexion implements CategoriaRepository, ProveedorRepository, ProductoRepository {
 
 	public final String dbUrl = "jdbc:mysql://localhost:3306/dbventas?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 	public final String driver = "com.mysql.jdbc.Driver";
@@ -437,6 +438,231 @@ public class Conexion implements CategoriaRepository, ProveedorRepository {
 	    }
 	    return true;
 	}
+
+	@Override
+	public Producto crearProducto(Producto producto) throws Exception {
+	    Connection con = this.conectar();
+	    String query = "INSERT INTO Productos (nombre, codigo, precio_compra, precio_venta, stock, stock_min, ProveedoresID, categoriasID, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	    PreparedStatement pstmt = null;
+	    ResultSet generatedKeys = null;
+	    try {
+	        pstmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+	        pstmt.setString(1, producto.getNombre());
+	        pstmt.setString(2, producto.getCodigo());
+	        pstmt.setDouble(3, producto.getPrecioCompra());
+	        pstmt.setDouble(4, producto.getPrecioVenta());
+	        pstmt.setInt(5, producto.getStock());
+	        pstmt.setInt(6, producto.getStockMin());
+	        pstmt.setInt(7, producto.getProveedoresID());
+	        pstmt.setInt(8, producto.getCategoriasID());
+	        pstmt.setBoolean(9, producto.isActivo());
+
+	        int affectedRows = pstmt.executeUpdate();
+
+	        if (affectedRows == 0) {
+	            throw new SQLException("La inserción falló, no se crearon registros.");
+	        }
+
+	        // Obtener el ID generado por la base de datos
+	        generatedKeys = pstmt.getGeneratedKeys();
+
+	        if (generatedKeys.next()) {
+	            int id = generatedKeys.getInt(1);
+	            producto.setProductosID(id); // Establecer el ID en el objeto Producto
+	        } else {
+	            throw new SQLException("No se generó un ID para el producto.");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al guardar el producto: " + e.getMessage());
+	    } finally {
+	        if (generatedKeys != null) {
+	            try {
+	                generatedKeys.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+	    return producto;
+	}
+
+	@Override
+	public Producto obtenerProductoPorID(int productoID) throws Exception {
+	    Connection con = this.conectar();
+
+	    String query = "SELECT * FROM Productos WHERE productosID = ?";
+	    PreparedStatement pstmt = null;
+	    ResultSet res = null;
+	    Producto producto = null;
+
+	    try {
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setInt(1, productoID);
+
+	        res = pstmt.executeQuery();
+
+	        if (res.next()) {
+	            producto = new Producto();
+	            producto.setProductosID(res.getInt("productosID"));
+	            producto.setNombre(res.getString("nombre"));
+	            producto.setCodigo(res.getString("codigo"));
+	            producto.setPrecioCompra(res.getDouble("precio_compra"));
+	            producto.setPrecioVenta(res.getDouble("precio_venta"));
+	            producto.setStock(res.getInt("stock"));
+	            producto.setStockMin(res.getInt("stock_min"));
+	            producto.setProveedoresID(res.getInt("ProveedoresID"));
+	            producto.setCategoriasID(res.getInt("categoriasID"));
+	            producto.setActivo(res.getBoolean("activo"));
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al obtener el producto por ID: " + e.getMessage());
+	    } finally {
+	        if (res != null) {
+	            try {
+	                res.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+
+	    return producto;
+	}
+
+	@Override
+	public List<Producto> obtenerTodosLosProductos() throws Exception {
+	    Connection con = this.conectar();
+	    List<Producto> lista = new ArrayList<Producto>();
+
+	    String query = "SELECT P.*, Pr.nombre_proveedor, C.nombre_categoria FROM Productos P " +
+	               "INNER JOIN Proveedores Pr ON P.proveedoresID = Pr.ProveedoresID " +
+	               "INNER JOIN Categorias C ON P.categoriasID = C.categoriasID " +
+	               "WHERE P.activo = 1 AND  C.activo = 1 AND Pr.activo = 1";
+
+	    try {
+	        Statement stmt = con.createStatement();
+	        ResultSet res = stmt.executeQuery(query);
+
+	        while (res.next()) {
+	            Producto producto = new Producto();
+	            producto.setProductosID(res.getInt("productosID"));
+	            producto.setNombre(res.getString("nombre"));
+	            producto.setProveedor(res.getString("nombre_proveedor"));
+	            producto.setCategoria(res.getString("nombre_categoria"));
+	            producto.setCodigo(res.getString("codigo"));
+	            producto.setPrecioCompra(res.getDouble("precio_compra"));
+	            producto.setPrecioVenta(res.getDouble("precio_venta"));
+	            producto.setStock(res.getInt("stock"));
+	            producto.setStockMin(res.getInt("stock_min"));
+	            producto.setProveedoresID(res.getInt("ProveedoresID"));
+	            producto.setCategoriasID(res.getInt("categoriasID"));
+	            producto.setActivo(res.getBoolean("activo"));
+	            lista.add(producto);
+	 
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al obtener la lista de productos: " + e.getMessage());
+	    }
+
+	    con.close();
+	    return lista;
+	}
+
+	@Override
+	public Producto actualizarProducto(Producto producto) throws Exception {
+	    Connection con = this.conectar();
+	    String query = "UPDATE Productos SET nombre = ?, codigo = ?, precio_compra = ?, precio_venta = ?, stock = ?, stock_min = ?, ProveedoresID = ?, categoriasID = ?, activo = ? WHERE productosID = ?";
+	    PreparedStatement pstmt = null;
+
+	    try {
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setString(1, producto.getNombre());
+	        pstmt.setString(2, producto.getCodigo());
+	        pstmt.setDouble(3, producto.getPrecioCompra());
+	        pstmt.setDouble(4, producto.getPrecioVenta());
+	        pstmt.setInt(5, producto.getStock());
+	        pstmt.setInt(6, producto.getStockMin());
+	        pstmt.setInt(7, producto.getProveedoresID());
+	        pstmt.setInt(8, producto.getCategoriasID());
+	        pstmt.setBoolean(9, producto.isActivo());
+	        pstmt.setInt(10, producto.getProductosID());
+
+	        int filasActualizadas = pstmt.executeUpdate();
+
+	        if (filasActualizadas == 1) {
+	            return producto; // Devuelve el producto actualizado
+	        } else {
+	            throw new Exception(
+	                "No se pudo actualizar el producto. No se encontró un producto con el ID proporcionado."
+	            );
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al actualizar el producto: " + e.getMessage());
+	    } finally {
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+	}
+
+	@Override
+	public boolean eliminarProducto(int productoID) throws Exception {
+	    Connection con = this.conectar();
+	    String query = "UPDATE Productos SET activo = false WHERE productosID = ?";
+	    PreparedStatement pstmt = null;
+
+	    try {
+	        pstmt = con.prepareStatement(query);
+	        pstmt.setInt(1, productoID);
+
+	        int filasActualizadas = pstmt.executeUpdate();
+
+	        if (filasActualizadas != 1) {
+	            throw new Exception(
+	                "No se pudo eliminar el producto. No se encontró un producto con el ID proporcionado."
+	            );
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al eliminar el producto: " + e.getMessage());
+	    } finally {
+	        if (pstmt != null) {
+	            try {
+	                pstmt.close();
+	            } catch (SQLException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        con.close();
+	    }
+	    return true;
+	}
+
 
 
 }

@@ -4,6 +4,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import model.Proveedor;
 import repository.Conexion;
+import repository.ProveedorRepository;
 
 import java.util.List;
 
@@ -11,12 +12,12 @@ public class ProveedorService {
 
 	
 
-	Conexion proveedorRepository = new Conexion();
-
+	//Conexion proveedorRepository = new Conexion();
+	ProveedorRepository proveedorRepository = new Conexion();
+	
     @SuppressWarnings("unchecked")
 	public JSONObject crearProveedor(Proveedor proveedor) throws Exception {
         JSONObject jsonResponse = new JSONObject();
-
         Proveedor proveedorGuardado = proveedorRepository.crearProveedor(proveedor);
         jsonResponse.put("tipo", "éxito");
         jsonResponse.put("mensaje", "Proveedor guardado exitosamente");
