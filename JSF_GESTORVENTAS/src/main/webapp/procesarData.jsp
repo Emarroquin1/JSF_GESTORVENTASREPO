@@ -1,8 +1,11 @@
+<%@page import="org.json.JSONArray"%>
+<%@page import="model.DetalleVenta"%>
+<%@page import="com.fasterxml.jackson.databind.ObjectMapper"%>
+<%@page import="java.util.Arrays"%>
 <%@page import="service.ProductoService"%>
 <%@page import="model.Producto"%>
 <%@page import="service.ProveedorService"%>
 <%@page import="model.Proveedor"%>
-<%@page import="org.json.simple.JSONArray"%>
 <%@page import="java.util.List"%>
 <%@page import="service.CategoriaService"%>
 <%@page import="org.json.simple.JSONObject"%>
@@ -149,7 +152,22 @@ if (key != null) {
 		int idDeleteProd = Integer.parseInt(request.getParameter("productoId"));
 		jsonResponse = productoService.eliminarProducto(idDeleteProd);
 		break;
+	case "registrarVenta":
+		
+	        String totalVenta = request.getParameter("totalVenta");
+	        String usuarioID = request.getParameter("usuarioID");
 
+	        // Ahora puedes usar arrayProducto, totalVenta, usuarioID en tu lógica de backend
+	        // Ejemplo: Imprimir los valores recibidos
+	      	String arrayProductojson = request.getParameter("arrayProducto");
+			JSONArray detalles = new JSONArray(arrayProductojson);
+		        
+	        System.out.println(detalles);
+	        System.out.println("Total de Venta: " + totalVenta);
+	        System.out.println("Usuario ID: " + usuarioID);
+		break;
+
+		
 	}
 
 } else {
