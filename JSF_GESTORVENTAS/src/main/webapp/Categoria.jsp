@@ -7,7 +7,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>CRUD CATEGORIAS</title>
+<title>MANTENIMIENTO DE CATEGORIAS</title>
 </head>
 <jsp:include page="menu.jsp" />
 
@@ -127,7 +127,17 @@
 	                var table = $('#miTablaCategoria').DataTable({
 	                paging: true,
 	                ordering: true,
-	                searching: true
+	                searching: true,
+	                dom: 'Bfrtip',
+	                buttons: [
+	                    {
+	                        extend: 'pdfHtml5',
+	                        download: 'open',
+	                        	 exportOptions: {
+	                        		  columns: [0,1]
+	                             }
+	                    }
+	            ]
 	            });
               table.clear().draw();
 
@@ -161,7 +171,7 @@
               });
           }
 			document.addEventListener("DOMContentLoaded", function() {
-				$('#miTablaCategoria').DataTable();
+
 			cargarTabla();
 
 		});

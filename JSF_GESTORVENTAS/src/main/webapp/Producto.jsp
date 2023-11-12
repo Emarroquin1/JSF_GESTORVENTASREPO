@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>CRUD Productos</title>
+<title>MANTENIMIENTO DE PRODUCTOS</title>
 </head>
 <jsp:include page="menu.jsp" />
 <body>
@@ -86,7 +86,7 @@
 		</div>
 		<!-- Tabla de productos -->
 		<h2>Listado de Productos</h2>
-		<table class="table table-bordered" id="miTabla">
+		<table class="table table-secondary" id="miTabla">
 			<thead>
 				<tr>
 					<th>Nombre del Producto</th>
@@ -105,6 +105,7 @@
 
 			</tbody>
 		</table>
+		
 	</div>
 
 	<!-- Incluye los scripts necesarios, como jQuery, Bootstrap y SweetAlert -->
@@ -114,7 +115,8 @@
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
 					
-            $('#miTabla').DataTable();
+		
+		    
 			cargarTablaProductos();
 			cargarSelectProveedores(0);
 			cargarSelectCategorias(0);
@@ -359,7 +361,17 @@ if (existingTable) {
 var table = $('#miTabla').DataTable({
     paging: true,
     ordering: true,
-    searching: true
+    searching: true,
+    dom: 'Bfrtip',
+    buttons: [
+        {
+            extend: 'pdfHtml5',
+            download: 'open',
+            	 exportOptions: {
+            		  columns: [0,1,2,3,4,5,6,7]
+                 }
+        }
+]
 });
 
 // Limpia la tabla (opcional)

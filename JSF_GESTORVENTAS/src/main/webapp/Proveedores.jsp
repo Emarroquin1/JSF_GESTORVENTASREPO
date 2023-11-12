@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>CRUD Proveedores</title>
+<title>MANTENIMIENTO DE PROVEEDORES</title>
 </head>
 <jsp:include page="menu.jsp" />
 <body>
@@ -82,7 +82,7 @@
 	<!-- Agrega tu script JavaScript para gestionar la lógica -->
 	<script>
 	document.addEventListener("DOMContentLoaded", function() {
-		  $('#miTablaProveedores').DataTable();
+	
 		cargarTablaProveedores();
 
 	});
@@ -201,7 +201,17 @@ function cargarTablaProveedores() {
     var table = $('#miTablaProveedores').DataTable({
         paging: true,
         ordering: true,
-        searching: true
+        searching: true,
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'pdfHtml5',
+                download: 'open',
+                	 exportOptions: {
+                		  columns: [0,1,2]
+                     }
+            }
+    ]
     });
 
     // Limpia la tabla (opcional)

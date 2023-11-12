@@ -1,7 +1,7 @@
 package service;
 
 import java.util.List;
-
+import images.*;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
@@ -60,8 +60,9 @@ public class PdfTicket {
 
 		
 		 // Agrega el logo al documento
-	    Image logo = Image.getInstance("path/to/your/logo.png"); // Reemplaza con la ruta de tu logo
-	    logo.scaleToFit(100, 100); // Ajusta el tamaño del logo según tus necesidades
+	    Image logo = Image.getInstance("https://static.wixstatic.com/media/6d2554_ac65608d30e640548e474f812b892a4e.png/v1/fill/w_280,h_254,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/6d2554_ac65608d30e640548e474f812b892a4e.png"); // Reemplaza con la ruta de tu logo
+	    logo.scaleToFit(70, 70); // Ajusta el tamaño del logo según tus necesidades
+	    logo.setAlignment(Image.ALIGN_CENTER);
 	    document.add(logo);
 	    
 	    
@@ -72,14 +73,22 @@ public class PdfTicket {
 		Font smallFont = new Font(Font.FontFamily.TIMES_ROMAN, 9);
 
 		// Agrega contenido al PDF
-		document.add(new Paragraph("VENTA", regularFont)); // Usa la fuente regular
-		document.add(new Paragraph("Fecha: " + ventaOBJ.getFecha(), regularFont));
+		 Paragraph title = new Paragraph("TICKET DE VENTA", regularFont);
+         title.setAlignment(Paragraph.ALIGN_CENTER);  // Alinea el texto al centro
+         document.add(title);  // Agrega el título al documento
+ 		document.add(new Paragraph(" "));
+         
+         Paragraph fecha = new Paragraph("Fecha: " + ventaOBJ.getFecha(), regularFont);
+         fecha.setAlignment(Paragraph.ALIGN_RIGHT);  // Alinea el texto a la izquierda
+        
+         
+         document.add(fecha);
 
 		// espacio entre la fecha y la tabla
 		document.add(new Paragraph(" "));
 		// Crea la tabla
 		PdfPTable table = new PdfPTable(5); // 5 columnas
-		table.setWidthPercentage(100);
+		table.setWidthPercentage(115);
 
 		// encabezados de la tabla
 		PdfPCell headerCell = new PdfPCell(new Phrase("Código", smallFont));
@@ -118,9 +127,10 @@ public class PdfTicket {
 
 		// Agrega la tabla al documento
 		document.add(table);
-
+		Paragraph total = new Paragraph("TOTAL: " + ventaOBJ.getTotal());
+		total.setAlignment(Paragraph.ALIGN_RIGHT);
 		// Agrega el total
-		document.add(new Paragraph("TOTAL: " + ventaOBJ.getTotal()));
+		document.add(total);
 
 		// Cierra el documento
 		document.close();

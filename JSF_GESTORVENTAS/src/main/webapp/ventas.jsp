@@ -25,7 +25,7 @@
 		</div>
 		<div class="col-4">
 			<label for="miIcantidadProductonput">Digite la cantidad
-				vendida</label> <input id="cantidadProducto" type="text" value=""
+				vendida</label> <input id="cantidadProducto" type="number" value=""
 				placeholder="cantidad" class="form-control"> <span
 				style="color: red;" id="cantidadError"></span>
 		</div>
@@ -38,7 +38,9 @@
 	</div>
 	<hr>
 	<div class="row">
-		<table id="tablaProductos" class="table" style="width: 100%;">
+ 	<div class="col-12">
+
+		<table id="tablaProductos" class="table table-secondary">
 			<thead>
 				<tr class="table-dark">
 					<th>Código</th>
@@ -54,6 +56,7 @@
 		</table>
 		<h4 style="color: red;" id="totalVenta"></h4>
 	</div>
+</div>
 	<div class="row">
 		<div class="col-4">
 			<button id="btnRegistrarVenta" class="btn btn-primary"
@@ -64,7 +67,7 @@
     <button id="btnGeneratePdf" type="submit">Generar PDF</button>
     <input type="hidden" value="pdfTicket" name="key">
     <input type="text" id="txtVentaId" name="txtVentaId">
-</form>
+	</form>
 	</div>
 </div>
 
