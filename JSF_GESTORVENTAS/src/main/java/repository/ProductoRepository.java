@@ -18,4 +18,10 @@ public interface ProductoRepository {
 
     // Eliminar un producto por su ID
     boolean eliminarProducto(int productoID) throws Exception;
+    
+    public Boolean actualizarPrecioDeVenta(int idProducto, double nuevoPrecio) throws Exception;
+    
+    public boolean actualizarStock(int idProducto, int nuevoStock) throws Exception;
+    	   
+    	  
 }

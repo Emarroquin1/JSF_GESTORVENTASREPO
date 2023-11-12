@@ -1,3 +1,5 @@
+<%@page import="service.PdfTicket"%>
+<%@page import="service.VentaService"%>
 <%@page import="org.json.JSONArray"%>
 <%@page import="model.DetalleVenta"%>
 <%@page import="com.fasterxml.jackson.databind.ObjectMapper"%>
@@ -23,6 +25,10 @@ CategoriaService categoriaService = new CategoriaService();
 ProveedorService proveedorService = new ProveedorService();
 
 ProductoService productoService = new ProductoService();
+
+VentaService ventaService = new VentaService();
+
+PdfTicket pdf = new PdfTicket();
 
 JSONObject jsonResponse = new JSONObject();
 if (key != null) {
@@ -153,21 +159,22 @@ if (key != null) {
 		jsonResponse = productoService.eliminarProducto(idDeleteProd);
 		break;
 	case "registrarVenta":
-		
-	        String totalVenta = request.getParameter("totalVenta");
-	        String usuarioID = request.getParameter("usuarioID");
 
-	        // Ahora puedes usar arrayProducto, totalVenta, usuarioID en tu lógica de backend
-	        // Ejemplo: Imprimir los valores recibidos
-	      	String arrayProductojson = request.getParameter("arrayProducto");
-			JSONArray detalles = new JSONArray(arrayProductojson);
-		        
-	        System.out.println(detalles);
-	        System.out.println("Total de Venta: " + totalVenta);
-	        System.out.println("Usuario ID: " + usuarioID);
+		Double totalVenta = Double.parseDouble(request.getParameter("totalVenta"));
+		int usuarioID = Integer.parseInt(request.getParameter("usuarioID"));
+
+		// Ahora puedes usar arrayProducto, totalVenta, usuarioID en tu lógica de backend
+		// Ejemplo: Imprimir los valores recibidos
+		String arrayProductojson = request.getParameter("arrayProducto");
+		JSONArray detalles = new JSONArray(arrayProductojson);
+
+		ventaService.registrarVenta(detalles, totalVenta, usuarioID);
+
+		System.out.println(detalles);
+		System.out.println("Total de Venta: " + totalVenta);
+		System.out.println("Usuario ID: " + usuarioID);
 		break;
 
-		
 	}
 
 } else {

@@ -58,14 +58,43 @@
 			<button id="btnRegistrarVenta" class="btn btn-primary"
 				onclick="registrarVenta()">Registrar Venta</button>
 		</div>
+<button id="btnGeneratePdf">Generar PDF</button>
 
-	</div>
+<form action="procesarDataPDF.jsp" target="_blank" method="post">
+  <button id="btnGeneratePdf" type="submit">Generar PDF</button>
+  <input type="hidden" value="pdfTicket" name="key">
+  <input type="text"  value ="16" name="txtVentaId">
+</form>
+</div>
 
 </body>
 </html>
 <jsp:include page="scripts.jsp" />
 <script>
-
+  // Agrega un evento de clic al botón
+    document.getElementById("btnGeneratePdf").addEventListener("click", function() {
+        // Llamada AJAX para generar el PDF
+        $.ajax({
+            type: "POST",
+            url: "procesarDataPDF.jsp",
+            data: {
+                key: "pdfTicket"
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Abre el PDF en una nueva pestaña
+                  //  window.open(response.pdfPath, '_blank');
+                } else {
+                    // Maneja errores o muestra mensajes al usuario según sea necesario
+                    alert("Error: " + response.message);
+                }
+            },
+            error: function(error) {
+                console.error(error);
+                alert("Error al comunicarse con el servidor");
+            }
+        });
+    });
     rolUsuario ="admin";
 	document.addEventListener("DOMContentLoaded", function() {
 	

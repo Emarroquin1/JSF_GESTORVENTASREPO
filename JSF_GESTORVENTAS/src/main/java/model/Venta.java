@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class Venta {
     private int ventasID;
-    private Date fecha;
+    private String fecha;
     private Double total;
     private int usuarioID;
     private boolean activo;
@@ -23,11 +23,11 @@ public class Venta {
         this.ventasID = ventasID;
     }
 
-    public Date getFecha() {
+    public String getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(String fecha) {
         this.fecha = fecha;
     }
 

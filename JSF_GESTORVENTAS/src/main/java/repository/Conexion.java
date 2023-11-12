@@ -1,13 +1,15 @@
 package repository;
 
 import java.sql.Connection;
-import java.sql.Date;
+
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import model.Categoria;
@@ -662,12 +664,88 @@ public class Conexion implements CategoriaRepository, ProveedorRepository, Produ
 		}
 		return true;
 	}
+	
+	 public boolean actualizarStock(int idProducto, int nuevoStock) throws Exception {
+	        Connection con = null;
 
+	        try {
+	            con = this.conectar();
+
+	            // Prepara la declaración SQL
+	            String sql = "UPDATE productos SET stock = ? WHERE productosID = ?";
+	            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+	                // Vincula los parámetros
+	                pstmt.setInt(1, nuevoStock);
+	                pstmt.setInt(2, idProducto);
+
+	                // Ejecuta la actualización
+	                int rowsAffected = pstmt.executeUpdate();
+
+	                if (rowsAffected > 0) {
+	                    // Éxito al actualizar el stock
+	                    return true;
+	                } else {
+	                    // No se actualizaron filas, puede ser que no exista el producto con el ID dado
+	                    return false;
+	                }
+	            }
+	        } catch (SQLException e) {
+	            // Error al ejecutar la actualización
+	            throw new Exception("Error al actualizar el stock del producto: " + e.getMessage());
+	        } finally {
+	            if (con != null) {
+	                try {
+	                    con.close();
+	                } catch (SQLException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+	    }
+
+	 public Boolean actualizarPrecioDeVenta(int idProducto, double nuevoPrecio) throws Exception {
+	        Connection con = null;
+
+	        try {
+	        	 con = this.conectar();
+
+	            // Prepara la declaración SQL
+	            String sql = "UPDATE productos SET precio_venta = ? WHERE productosID = ?";
+	            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+	                // Vincula los parámetros
+	                pstmt.setDouble(1, nuevoPrecio);
+	                pstmt.setInt(2, idProducto);
+
+	                // Ejecuta la actualización
+	                int rowsAffected = pstmt.executeUpdate();
+
+	                if (rowsAffected > 0) {
+	                    // Éxito al actualizar el precio
+	                    return true;
+	                } else {
+	                    // No se actualizaron filas, puede ser que no exista el producto con el ID dado
+	                    return false;
+	                }
+	            }
+	        } catch (SQLException e) {
+	            // Error al ejecutar la actualización
+	         throw new Exception("Error al actualizar el precio de venta: "+e.getMessage());
+	        } finally {
+	            if (con != null) {
+	                try {
+	                	con.close();
+	                } catch (SQLException e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	        }
+	 }
+	
 	@Override
 	public int crearVenta(Venta venta) throws Exception {
 		Connection con = this.conectar();
 
-		Date fecha = (Date) venta.getFecha();
+		String fecha = venta.getFecha();
 		double total = venta.getTotal();
 		int usuarioID = venta.getUsuarioID();
 		int activo = venta.isActivo() ? 1 : 0;
@@ -678,7 +756,7 @@ public class Conexion implements CategoriaRepository, ProveedorRepository, Produ
 			PreparedStatement pstmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
 			// Vincula los parámetros
-			pstmt.setDate(1, fecha);
+			pstmt.setString(1, fecha);
 			pstmt.setDouble(2, total);
 			pstmt.setInt(3, usuarioID);
 			pstmt.setInt(4, activo);
@@ -709,9 +787,52 @@ public class Conexion implements CategoriaRepository, ProveedorRepository, Produ
 
 	@Override
 	public List<DetalleVenta> obtenerDetalleByVentaId(int ventaId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        Connection con = null;
+        List<DetalleVenta> detalles = new ArrayList<>();
+
+        try {
+            con = this.conectar();
+
+            // Prepara la declaración SQL
+            String sql = "SELECT DV.*, P.* FROM Detalle_ventas DV " +
+                         "INNER JOIN Productos P ON DV.productosID = P.productosID " +
+                         "WHERE DV.ventasID = ?";
+            try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+                // Vincula el parámetro
+                pstmt.setInt(1, ventaId);
+
+                // Ejecuta la consulta
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    // Procesa los resultados
+                    while (rs.next()) {
+                        DetalleVenta detalle = new DetalleVenta();
+                        detalle.setDetalleID(rs.getInt("detalleID"));
+                        detalle.setVentasID(rs.getInt("ventasID"));
+                        detalle.setProductosID(rs.getInt("productosID"));
+                        detalle.setCantidad(rs.getInt("cantidad"));
+                        detalle.setActivo(rs.getBoolean("activo"));
+                        detalle.setCodigo(rs.getString("codigo"));
+                        detalle.setProducto(rs.getString("nombre"));
+                        detalle.setPrecioVenta(rs.getDouble("precio_venta"));                  
+                        detalles.add(detalle);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            // Error al ejecutar la consulta
+            throw new Exception("Error al obtener los detalles de la venta: " + e.getMessage());
+        } finally {
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return detalles;
+    }
 
 	@Override
 	public Boolean crearDetalleVenta(DetalleVenta detalle) throws Exception {
@@ -753,11 +874,19 @@ public class Conexion implements CategoriaRepository, ProveedorRepository, Produ
 	public int registrarVenta(List<DetalleVenta> detalles, double totalVenta, int usuarioID) throws Exception {
 		try {
 			// Crear un objeto Ventas
+			
+			// Obtén la fecha actual
+		    Date currentDate = new Date();
+
+		    // Formatea la fecha en el formato deseado
+		    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		    String fecha = dateFormat.format(currentDate);
+		    
 			Venta venta = new Venta();
 			venta.setTotal(totalVenta);
 			venta.setUsuarioID(usuarioID);
 			venta.setActivo(true);
-
+			venta.setFecha(fecha);
 			// Llamar a guardarVenta para insertar la venta en la base de datos
 			int ventaID = crearVenta(venta);
 
@@ -768,10 +897,17 @@ public class Conexion implements CategoriaRepository, ProveedorRepository, Produ
 					detalle.setProductosID((int) detalle.getProductosID());
 					detalle.setCantidad((int) detalle.getCantidad());
 					detalle.setActivo(true);
-
+					
 					// Llamar a guardarDetalleVenta para insertar el detalle en la base de datos
 					this.crearDetalleVenta(detalle);			
+					this.actualizarPrecioDeVenta(detalle.getProductosID(), detalle.getPrecioVenta());
+					
+					int newStock = detalle.getStock()-detalle.getCantidad();
+					
+					this.actualizarStock(detalle.getProductosID(),newStock);
+				
 				}
+				
 
 				// Devuelve el ID de la venta recién insertada
 				return ventaID;
@@ -785,4 +921,52 @@ public class Conexion implements CategoriaRepository, ProveedorRepository, Produ
 		}
 	}
 
+	@Override
+	 public Venta findById(int id) throws Exception {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = this.conectar();
+            System.out.println("ID "+id);
+            // Prepara la consulta SQL
+            String query = "SELECT * FROM Ventas WHERE ventasID = ?";
+            pstmt = con.prepareStatement(query);
+            pstmt.setInt(1, id);
+
+            // Ejecuta la consulta
+            rs = pstmt.executeQuery();
+       
+            // Verifica si se encontró una venta
+            if (rs.next()) {
+                // Crea un objeto Venta y establece sus propiedades
+                Venta venta = new Venta();
+                venta.setVentasID(rs.getInt("ventasID"));
+                venta.setFecha(rs.getString("fecha"));
+                venta.setTotal(rs.getDouble("total"));
+                venta.setUsuarioID(rs.getInt("usuarioID"));
+                venta.setActivo(rs.getBoolean("activo"));
+
+                // Retorna la venta encontrada
+                return venta;
+            } else {
+                // Si no se encuentra ninguna venta con el ID dado, retorna null
+                return null;
+            }
+        } catch (Exception e) {
+            throw new Exception("Error al buscar la venta por ID: " + e.getMessage());
+        } finally {
+            // Cierra los recursos
+            if (rs != null) {
+                rs.close();
+            }
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (con != null) {
+                con.close();
+            }
+        }
+    }
 }
