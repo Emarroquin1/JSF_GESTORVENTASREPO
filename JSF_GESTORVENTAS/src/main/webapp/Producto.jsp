@@ -62,14 +62,12 @@
 									placeholder="Ingrese el stock mínimo">
 							</div>
 							<div class="mb-3">
-								<label for="proveedoresID" class="form-label">ID de
-									Proveedor</label> <select class="form-select" id="proveedoresID">
+								<label for="proveedoresID" class="form-label">Proveedor</label> <select class="form-select" id="proveedoresID">
 									<option value="" selected>Selecciona un proveedor</option>
 								</select>
 							</div>
 							<div class="mb-3">
-								<label for="categoriasID" class="form-label">ID de
-									Categoría</label> <select class="form-select" id="categoriasID">
+								<label for="categoriasID" class="form-label">Categoría</label> <select class="form-select" id="categoriasID">
 									<option value="" selected>Selecciona una categoría</option>
 								</select>
 							</div>
@@ -99,7 +97,8 @@
 					<th>Stock Mínimo</th>
 					<th>Proveedor</th>
 					<th>Categoría</th>
-					<th colspan="2" style="text-align: center;">Opciones</th>
+					<th>Opciones</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -114,9 +113,13 @@
 	<!-- Agrega tu script JavaScript para gestionar la lógica de productos -->
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
+					
+            $('#miTabla').DataTable();
 			cargarTablaProductos();
 			cargarSelectProveedores(0);
 			cargarSelectCategorias(0);
+	
+     
 		});
 
 		function limpiarCampos() {
@@ -132,39 +135,53 @@
 			$("#productoId").val("0");
 		}
 
-		function eliminarProducto(productoId) {
-			$.ajax({
-				type : "POST",
-				url : "procesarData.jsp",
-				data : {
-					key : "eliminarProducto",
-					productoId : productoId
-				},
-				success : function(data) {
-					if (data.tipo === "éxito") {
-						Swal.fire({
-							icon : 'success',
-							title : 'Producto eliminado exitosamente',
-							showConfirmButton : true,
-							timer : 1500
-						});
+	function eliminarProducto(productoId) {
+    // Pregunta al usuario si realmente desea eliminar el producto
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción eliminará el producto. ¿Quieres continuar?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminarlo'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Si el usuario confirma, realiza la eliminación
+            $.ajax({
+                type: "POST",
+                url: "procesarData.jsp",
+                data: {
+                    key: "eliminarProducto",
+                    productoId: productoId
+                },
+                success: function (data) {
+                    if (data.tipo === "éxito") {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Producto eliminado exitosamente',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
 
-						cargarTablaProductos();
-						// Realiza cualquier otra acción necesaria después de eliminar el producto
-					} else {
-						Swal.fire({
-							icon : 'error',
-							title : 'Error',
-							text : 'Error al eliminar el producto: '
-									+ data.mensaje
-						});
-					}
-				},
-				error : function(error) {
-					console.log("Error en la solicitud AJAX: " + error);
-				}
-			});
-		}
+                        cargarTablaProductos();
+                        // Realiza cualquier otra acción necesaria después de eliminar el producto
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error al eliminar el producto: ' + data.mensaje
+                        });
+                    }
+                },
+                error: function (error) {
+                    console.log("Error en la solicitud AJAX: " + error);
+                }
+            });
+        }
+    });
+}
+
 
 		function guardarProducto() {
 			// Obtener los valores de los campos del modal
@@ -243,6 +260,7 @@
 		}
 		function cargarSelectProveedores(id) {
 			var select = document.getElementById("proveedoresID");
+			 select.innerHTML = '';
 			console.log(id)
 			$.ajax({
 				type : "POST",
@@ -252,15 +270,20 @@
 				},
 				success : function(data) {
 					if (Array.isArray(data['proveedores'])) {
-						data['proveedores'].forEach(function(proveedor) {
 							var option = document.createElement("option");
+							option.value = "";
+							option.text =  "Seleccione un proveedor";
+							select.appendChild(option);	
+						data['proveedores'].forEach(function(proveedor) {
+							 option = document.createElement("option");
 							option.value = proveedor.proveedorId;
 							option.text = proveedor.nombreProveedor;
-							select.appendChild(option);
 							// Comprueba si el valor de id coincide con el categoriaID de la opción actual
-							if (id > 0 && proveedor.proveedorId === id) {
+							if (id > 0 && proveedor.proveedorId == id) {
 								option.selected = true;
 							}
+							select.appendChild(option);
+							
 						});
 					}
 				},
@@ -272,6 +295,7 @@
 
 		function cargarSelectCategorias(id) {
 			var select = document.getElementById("categoriasID");
+			select.innerHTML = '';
 			console.log(id)
 			$.ajax({
 				type : "POST",
@@ -281,17 +305,20 @@
 				},
 				success : function(data) {
 					if (Array.isArray(data['categorias'])) {
+							 option = document.createElement("option");
+							option.value = "";
+							option.text =  "Seleccione una categoria";
+							select.appendChild(option);	
 						data['categorias'].forEach(function(categoria) {
 							var option = document.createElement("option");
 							option.value = categoria.categoriaId;
 							option.text = categoria.nombreCategoria;
-							select.appendChild(option);
-						
 							// Comprueba si el valor de id coincide con el categoriaID de la opción actual
-							if (id > 0 && categoria.categoriaId === id) {
+							if (id > 0 && categoria.categoriaId == id) {
 									console.log('entro')
 								option.selected = true;
 							}
+							select.appendChild(option);								
 						});
 					}
 				},
@@ -301,18 +328,44 @@
 			});
 		}
 
+		function modificarProducto(nombre, codigo, precioCompra, precioVenta, stock, stockMin, proveedoresID, categoriasID, productoId) {
+    // Rellena los campos del modal con los datos del producto
+    document.getElementById("nombreProducto").value = nombre;
+    document.getElementById("codigo").value = codigo;
+    document.getElementById("precioCompra").value = precioCompra;
+    document.getElementById("precioVenta").value = precioVenta;
+    document.getElementById("stock").value = stock;
+    document.getElementById("stockMin").value = stockMin;
+
+    cargarSelectProveedores(proveedoresID);
+    cargarSelectCategorias(categoriasID);
+
+    document.getElementById("productoId").value = productoId;
+
+    // Abre el modal
+   var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+  	myModal.show();
+}
+
+
 		function cargarTablaProductos() {
-			var table = document.getElementById("miTabla");
-			var tbody = table.getElementsByTagName("tbody")[0];
+			var existingTable = $('#miTabla').DataTable();
 
-			// Elimina todas las filas existentes
-			while (tbody.hasChildNodes()) {
-				tbody.removeChild(tbody.firstChild);
-			}
+// Destruye la tabla existente si ya existe
+if (existingTable) {
+    existingTable.destroy();
+}
+// Crea la nueva tabla
+var table = $('#miTabla').DataTable({
+    paging: true,
+    ordering: true,
+    searching: true
+});
 
+// Limpia la tabla (opcional)
+table.clear().draw();										
 			// Realiza una solicitud AJAX para obtener la lista de productos
-			$
-					.ajax({
+			$.ajax({
 						type : "POST",
 						url : "procesarData.jsp", // Asegúrate de que esta sea la URL correcta
 						data : {
@@ -323,75 +376,37 @@
 							console.log(data['productos']);
 
 							if (Array.isArray(data['productos'])) {
-								for (var i = 0; i < data['productos'].length; i++) {
-									var row = tbody.insertRow(i);
-									var cell1 = row.insertCell(0);
-									var cell2 = row.insertCell(1);
-									var cell3 = row.insertCell(2);
-									var cell4 = row.insertCell(3);
-									var cell5 = row.insertCell(4);
-									var cell6 = row.insertCell(5);
-									var cell7 = row.insertCell(6);
-									var cell8 = row.insertCell(7);
-									var cell9 = row.insertCell(8);						
+							   for (var i = 0; i < data['productos'].length; i++) {
 
-									// Llena las celdas de la fila con datos de productos
-									cell1.innerHTML = data['productos'][i].nombre;
-									cell2.innerHTML = data['productos'][i].codigo;
-									cell3.innerHTML = data['productos'][i].precioCompra;
-									cell4.innerHTML = data['productos'][i].precioVenta;
-									cell5.innerHTML = data['productos'][i].stock;
-									cell6.innerHTML = data['productos'][i].stockMin;							
-									cell7.innerHTML = data['productos'][i].categoria;
-									cell8.innerHTML = data['productos'][i].proveedor;
-									// Agrega botón de modificar con estilo Bootstrap
-									var modificarButton = document
-											.createElement("button");
-									modificarButton.className = "btn btn-primary";
-									modificarButton.innerHTML = "Modificar";
+					
+					
+var producto = data['productos'][i];
+var nombre = producto.nombre;
+var codigo = producto.codigo;
+var precioCompra = producto.precioCompra;
+var precioVenta = producto.precioVenta;
+var stock = producto.stock;
+var stockMin = producto.stockMin;
+var proveedoresID = producto.proveedoresID;
+var categoriasID = producto.categoriasID;
+var productoId = producto.productoId;
 
-									// Asigna un evento onclick para manejar la acción de modificar
-									modificarButton.onclick = function() {
-										var rowIndex = this.parentElement.parentElement.rowIndex - 1;
-										var productoSeleccionado = data['productos'][rowIndex];
-
-										// Rellena los campos del modal con los datos del producto
-										document
-												.getElementById("nombreProducto").value = productoSeleccionado.nombre;
-										document.getElementById("codigo").value = productoSeleccionado.codigo;
-										document.getElementById("precioCompra").value = productoSeleccionado.precioCompra;
-										document.getElementById("precioVenta").value = productoSeleccionado.precioVenta;
-										document.getElementById("stock").value = productoSeleccionado.stock;
-										document.getElementById("stockMin").value = productoSeleccionado.stockMin;
-									
-										cargarSelectProveedores(productoSeleccionado.proveedoresID);
-										cargarSelectCategorias(productoSeleccionado.categoriasID);
-									
-										document.getElementById("productoId").value = productoSeleccionado.productoId;
-
-										// Abre el modal
-										var myModal = new bootstrap.Modal(
-												document
-														.getElementById('exampleModal'));
-										myModal.show();
-									};
-
-									// Agrega botón de eliminar con estilo Bootstrap
-									var eliminarButton = document
-											.createElement("button");
-									eliminarButton.className = "btn btn-danger";
-									eliminarButton.innerHTML = "Eliminar";
-									eliminarButton.dataset.productoId = data['productos'][i].productoId; // Guarda el ID
-
-									// Asigna un evento onclick para manejar la acción de eliminar
-									eliminarButton.onclick = function() {
-										var productoSeleccionado = this.dataset.productoId;
-										eliminarProducto(productoSeleccionado);
-									};
-
-									cell9.appendChild(modificarButton);
-									cell9.appendChild(eliminarButton);
-								}
+var buttonModificar = '<button class="btn btn-primary" onclick="modificarProducto(\'' + nombre + '\', \'' + codigo + '\', ' + precioCompra + ', ' + precioVenta + ', ' + stock + ', ' + stockMin + ', \'' + proveedoresID + '\', \'' + categoriasID + '\', ' + productoId + ')">Modificar</button>';
+var buttonEliminar = '<button class="btn btn-danger"  onclick="eliminarProducto(\'' + productoId + '\')">Eliminar</button>';
+             // Agrega la fila directamente a DataTables
+                    table.row.add([
+                        data['productos'][i].nombre,
+                        data['productos'][i].codigo,
+                        data['productos'][i].precioCompra,
+                        data['productos'][i].precioVenta,
+                        data['productos'][i].stock,
+                        data['productos'][i].stockMin,
+                        data['productos'][i].categoria,
+                        data['productos'][i].proveedor,
+                        buttonModificar,
+						buttonEliminar
+                    ]).draw(true);
+                }
 							}
 						},
 						error : function(error) {

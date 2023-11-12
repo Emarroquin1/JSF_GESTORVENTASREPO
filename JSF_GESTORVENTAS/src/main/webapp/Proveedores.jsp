@@ -60,13 +60,14 @@
 		</div>
 		<!-- Tabla de proveedores -->
 		<h2>Listado de Proveedores</h2>
-		<table class="table table-bordered" id="miTabla">
+		<table class="table table-bordered" id="miTablaProveedores">
 			<thead>
 				<tr>
 					<th>Nombre del Proveedor</th>
 					<th>Contacto</th>
 					<th>Dirección</th>				
-					<th colspan="2" style="text-align: center;">Opciones</th>
+					<th>Opciones</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -81,6 +82,7 @@
 	<!-- Agrega tu script JavaScript para gestionar la lógica -->
 	<script>
 	document.addEventListener("DOMContentLoaded", function() {
+		  $('#miTablaProveedores').DataTable();
 		cargarTablaProveedores();
 
 	});
@@ -188,88 +190,88 @@ function guardarProveedor() {
     });
 }
 
+function cargarTablaProveedores() {
+    // Destruye la tabla existente si ya existe
+    var existingTable = $('#miTablaProveedores').DataTable();
+    if (existingTable) {
+        existingTable.destroy();
+    }
 
-		function cargarTablaProveedores() {
-			var table = document.getElementById("miTabla");
-			var tbody = table.getElementsByTagName("tbody")[0];
+    // Crea la nueva tabla
+    var table = $('#miTablaProveedores').DataTable({
+        paging: true,
+        ordering: true,
+        searching: true
+    });
 
-			// Elimina todas las filas existentes
-			while (tbody.hasChildNodes()) {
-				tbody.removeChild(tbody.firstChild);
-			}
+    // Limpia la tabla (opcional)
+    table.clear().draw();
 
-			// Realiza una solicitud AJAX para obtener la lista de proveedores
-			$.ajax({
-						type : "POST",
-						url : "procesarData.jsp", // Asegúrate de que esta sea la URL correcta
-						data : {
-							key : "getProveedores" // Ajusta la clave para obtener proveedores
-						// Puedes agregar otras variables de solicitud si es necesario
-						},
-						success : function(data) {
-							console.log(data['proveedores']);
+    // Realiza una solicitud AJAX para obtener la lista de proveedores
+    $.ajax({
+        type: "POST",
+        url: "procesarData.jsp",
+        data: {
+            key: "getProveedores"
+        },
+        success: function (data) {
+            console.log(data['proveedores']);
 
-							if (Array.isArray(data['proveedores'])) {
-								for (var i = 0; i < data['proveedores'].length; i++) {
-									var row = tbody.insertRow(i);
-									var cell1 = row.insertCell(0);
-									var cell2 = row.insertCell(1);
-									var cell3 = row.insertCell(2);
-									var cell4 = row.insertCell(3);
+            if (Array.isArray(data['proveedores'])) {
+                for (var i = 0; i < data['proveedores'].length; i++) {
+                    var proveedor = data['proveedores'][i];
 
-									// Llena las celdas de la fila con datos de proveedores
-									cell1.innerHTML = data['proveedores'][i].nombreProveedor;
-									cell2.innerHTML = data['proveedores'][i].contacto;
-									cell3.innerHTML = data['proveedores'][i].direccion;
+                    var buttonModificar = '<button class="btn btn-primary" onclick="modificarProveedor(\'' + proveedor.nombreProveedor + '\', \'' + proveedor.contacto + '\', \'' + proveedor.direccion + '\', ' + proveedor.proveedorId + ')">Modificar</button>';
 
-									// Agrega botón de modificar con estilo Bootstrap
-									var modificarButton = document
-											.createElement("button");
-									modificarButton.className = "btn btn-primary";
-									modificarButton.innerHTML = "Modificar";
+                    var buttonEliminar = '<button class="btn btn-danger"  onclick="confirmarEliminarProveedor(\'' + proveedor.proveedorId + '\')">Eliminar</button>';
 
-									// Asigna un evento onclick para manejar la acción de modificar
-									modificarButton.onclick = function() {
-										var rowIndex = this.parentElement.parentElement.rowIndex - 1;
-										var proveedorSeleccionado = data['proveedores'][rowIndex];
+                    // Agrega la fila directamente a DataTables
+                    table.row.add([
+                        proveedor.nombreProveedor,
+                        proveedor.contacto,
+                        proveedor.direccion,
+                        buttonModificar,
+                        buttonEliminar
+                    ]).draw(true);
+                }
+            }
+        },
+        error: function (error) {
+            console.log("Error en la solicitud AJAX: " + error);
+        }
+    });
+}
 
-										// Rellena los campos del modal con los datos del proveedor
-										document
-												.getElementById("nombreProveedor").value = proveedorSeleccionado.nombreProveedor;
-										document.getElementById("contacto").value = proveedorSeleccionado.contacto;
-										document.getElementById("direccion").value = proveedorSeleccionado.direccion;
-										document.getElementById("proveedorId").value = proveedorSeleccionado.proveedorId;
+function confirmarEliminarProveedor(proveedorId) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción no se puede deshacer',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            eliminarProveedor(proveedorId);
+        }
+    });
+}
 
-										// Abre el modal
-										var myModal = new bootstrap.Modal(
-												document
-														.getElementById('exampleModal'));
-										myModal.show();
-									};
 
-									// Agrega botón de eliminar con estilo Bootstrap
-									var eliminarButton = document
-											.createElement("button");
-									eliminarButton.className = "btn btn-danger";
-									eliminarButton.innerHTML = "Eliminar";
-									eliminarButton.dataset.proveedorId = data['proveedores'][i].proveedorId; // Guarda el ID
+function modificarProveedor(nombreProveedor, contacto, direccion, proveedorId) {
+    // Rellena los campos del modal con los datos del proveedor
+    document.getElementById("nombreProveedor").value = nombreProveedor;
+    document.getElementById("contacto").value = contacto;
+    document.getElementById("direccion").value = direccion;
+    document.getElementById("proveedorId").value = proveedorId;
 
-									// Asigna un evento onclick para manejar la acción de eliminar
-									eliminarButton.onclick = function() {
-										var proveedorSeleccionado = this.dataset.proveedorId;
-										eliminarProveedor(proveedorSeleccionado);
-									};
-
-									cell4.appendChild(modificarButton);
-									cell4.appendChild(eliminarButton);
-								}
-							}
-						},
-						error : function(error) {
-							console.log("Error en la solicitud AJAX: " + error);
-						}
-					});
-		}
+    // Abre el modal
+    var myModal = new bootstrap.Modal(
+        document.getElementById('exampleModal')
+    );
+    myModal.show();
+}
 
 		// Agrega aquí tu lógica JavaScript para manejar las operaciones CRUD de proveedores.
 		// Puedes reutilizar y personalizar el código que usaste para las categorías.

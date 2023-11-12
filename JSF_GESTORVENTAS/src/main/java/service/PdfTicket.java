@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
@@ -57,6 +58,13 @@ public class PdfTicket {
 		// Abre el documento para escribir
 		document.open();
 
+		
+		 // Agrega el logo al documento
+	    Image logo = Image.getInstance("path/to/your/logo.png"); // Reemplaza con la ruta de tu logo
+	    logo.scaleToFit(100, 100); // Ajusta el tamaño del logo según tus necesidades
+	    document.add(logo);
+	    
+	    
 		// Crea un objeto Font con un tamaño específico para el texto regular
 		Font regularFont = new Font(Font.FontFamily.TIMES_ROMAN, 10);
 

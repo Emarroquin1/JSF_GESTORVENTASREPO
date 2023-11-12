@@ -31,3 +31,7 @@
 <!-- SweetAlert CDN para el estilo -->
 <link rel="stylesheet"
 	href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.7/dist/sweetalert2.min.css">
+
+	<!-- CDN para DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+	

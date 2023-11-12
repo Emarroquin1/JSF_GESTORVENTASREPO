@@ -24,9 +24,6 @@
 			<!-- Button trigger modal -->
 			<button type="button" class="btn btn-primary" data-bs-toggle="modal"
 				data-bs-target="#exampleModal">Agregar Categoria</button>
-
-
-
 			<!-- Modal -->
 			<div class="modal fade" id="exampleModal" tabindex="-1"
 				aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -65,13 +62,13 @@
 		</div>
 
 		<h2>Listado de Categorías</h2>
-		<table class="table table-bordered" id="miTabla">
+		<table class="table table-bordered" id="miTablaCategoria">
 			<thead>
 				<tr>
 					<th>Nombre de Categoría</th>
-					<th>Descripción</th>
-					<th>Activo</th>
-					<th colspan="2" style="text-align: center;">Opciones</th>
+					<th>Descripción</th>				
+					<th>Opciones</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -119,90 +116,52 @@
 			});
 		}
 
-		function cargarTabla() {
-			// Obtén la tabla y su cuerpo
-			var table = document.getElementById("miTabla");
-			var tbody = table.getElementsByTagName("tbody")[0];
+		  function cargarTabla() {
+              // Limpiar tabla
+              
+                var existingTable = $('#miTablaCategoria').DataTable();
+				    if (existingTable) {
+				        existingTable.destroy();
+				  }
+				    
+	                var table = $('#miTablaCategoria').DataTable({
+	                paging: true,
+	                ordering: true,
+	                searching: true
+	            });
+              table.clear().draw();
 
-			// Elimina todas las filas existentes
-			while (tbody.hasChildNodes()) {
-				tbody.removeChild(tbody.firstChild);
-			}
-			$.ajax({
-						type : "POST",
-						url : "procesarData.jsp",
-						data : {
-							key : "getCategorias"
-						// Otras variables de solicitud si es necesario
-						},
-						success : function(data) {
-							console.log(data['categorias']);
-							// Comprueba si la respuesta es un arreglo
-							if (Array.isArray(data['categorias'])) {
-								console.log('entro');
-								var table = document.getElementById("miTabla");
-								var tbody = table.getElementsByTagName("tbody")[0];
-
-								for (var i = 0; i < data['categorias'].length; i++) {
-									var row = tbody.insertRow(i);
-									var cell1 = row.insertCell(0);
-									var cell2 = row.insertCell(1);
-									var cell3 = row.insertCell(2);
-									var cell4 = row.insertCell(3);
-									cell1.innerHTML = data['categorias'][i].nombreCategoria;
-									cell2.innerHTML = data['categorias'][i].descripcion;
-
-									// Agregar botón de modificar con estilo Bootstrap
-									var modificarButton = document
-											.createElement("button");
-									modificarButton.className = "btn btn-primary";
-									modificarButton.innerHTML = "Modificar";
-									// Asigna un evento onclick para manejar la acción de modificar
-									modificarButton.onclick = function() {
-										// Obtiene la categoría seleccionada
-										var rowIndex = this.parentElement.parentElement.rowIndex - 1; // Resta 1 para obtener el índice correcto
-										var categoriaSeleccionada = data['categorias'][rowIndex]; // Accede a la categoría seleccionada
-
-										// Rellena los campos del modal con los datos de la categoría
-										document
-												.getElementById("nombreCategoria").value = categoriaSeleccionada.nombreCategoria;
-										document.getElementById("descripcion").value = categoriaSeleccionada.descripcion;
-										document.getElementById("categoriaId").value = categoriaSeleccionada.categoriaId;
-
-										// Abre el modal
-										var myModal = new bootstrap.Modal(
-												document
-														.getElementById('exampleModal'));
-										myModal.show();
-									};
-
-									// Agregar botón de eliminar con estilo Bootstrap
-									var eliminarButton = document
-											.createElement("button");
-									eliminarButton.className = "btn btn-danger";
-									eliminarButton.innerHTML = "Eliminar";
-									eliminarButton.dataset.categoriaId = data['categorias'][i].categoriaId; // Guarda el ID
-
-									// Asigna un evento onclick para manejar la acción de eliminar
-									eliminarButton.onclick = function() {
-										var categoriaSeleccionada = this.dataset.categoriaId; // Obtiene el ID desde el atributo personalizado
-
-										// Llama a la función eliminarCategoria con la categoría seleccionada
-										eliminarCategoria(categoriaSeleccionada);
-									};
-
-									cell3.appendChild(modificarButton);
-									cell4.appendChild(eliminarButton);
-								}
-							}
-
-						},
-						error : function(error) {
-							console.log("Error en la solicitud AJAX: " + error);
-						}
-					});
-		}
-		document.addEventListener("DOMContentLoaded", function() {
+              $.ajax({
+                  type: "POST",
+                  url: "procesarData.jsp",
+                  data: {
+                      key: "getCategorias"
+                  },
+                  success: function (data) {
+                      if (Array.isArray(data['categorias'])) {
+                          for (var i = 0; i < data['categorias'].length; i++) {
+                           //Modificar
+                              <!-- Modificar -->
+							var buttonModificar = '<button class="btn btn-primary" onclick="modificarCategoria(\'' + data['categorias'][i].nombreCategoria + '\', \'' + data['categorias'][i].descripcion + '\', ' + data['categorias'][i].categoriaId + ')">Modificar</button>';
+							// Eliminar
+                              var buttonEliminar = '<button class="btn btn-danger" onclick="eliminarCategoria(' + data['categorias'][i].categoriaId + ')">Eliminar</button>';
+                              // Agregar fila directamente a DataTables
+                              table.row.add([
+                                  data['categorias'][i].nombreCategoria,
+                                  data['categorias'][i].descripcion,
+                                  buttonModificar,                           
+                                  buttonEliminar,
+                              ]).draw(true);
+                          }
+                      }
+                  },
+                  error: function (error) {
+                      console.log("Error en la solicitud AJAX: " + error);
+                  }
+              });
+          }
+			document.addEventListener("DOMContentLoaded", function() {
+				$('#miTablaCategoria').DataTable();
 			cargarTabla();
 
 		});
@@ -213,6 +172,19 @@
     document.getElementById("descripcion").value = "";
     document.getElementById("categoriaId").value = "0";
 }
+		
+	    function modificarCategoria(nombreCategoria, descripcion, categoriaId) {
+	        // Rellena los campos del modal con los datos de la categoría
+	        $("#nombreCategoria").val(nombreCategoria);
+	        $("#descripcion").val(descripcion);
+	        // Establece el valor del campo "categoriaId"
+	        $("#categoriaId").val(categoriaId);
+	        
+	        // Abre el modal
+	        var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+	        myModal.show();
+	    }
+
 
 		function guardarCategoria() {
 			// Obtener los valores de los campos del modal
@@ -273,9 +245,6 @@
 			});
 		}
 
-		function modificarCategoria(nombre) {
-
-		}
 	</script>
 
 
