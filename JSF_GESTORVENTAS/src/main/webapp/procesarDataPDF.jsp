@@ -35,9 +35,7 @@ if (key != null) {
 			int id = Integer.parseInt(request.getParameter("txtVentaId"));
             // Llama al método generatePdf desde el contexto adecuado
             pdf.generatePdf(response,id);
-        	
-            //jsonResponse.put("success", true);
-            //jsonResponse.put("message", "PDF generado con éxito");
+      	       
         } catch (Exception e) {
             e.printStackTrace();
         
@@ -47,13 +45,7 @@ if (key != null) {
 	}
 
 } else {
-	// Si no se proporciona un "key", establece una respuesta de error
+	
 }
-//String jsonString = jsonResponse.toString();
-// Configurar la respuesta HTTP
-//response.setContentType("application/json");
-//response.setCharacterEncoding("UTF-8");
 
-// Enviar la respuesta
-//response.getWriter().write(jsonString);
 %>

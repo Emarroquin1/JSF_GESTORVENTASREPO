@@ -9,9 +9,10 @@
 </head>
 <body>
 
-	<div class="container">
-		<div class="mb-3"></div>
-	</div>
+<div class="container-fluid">
+		<div class="mb-3">
+        </div>
+
 	<h3>SISTEMA DE VENTAS</h3>
 
 	<div class="row">
@@ -58,13 +59,13 @@
 			<button id="btnRegistrarVenta" class="btn btn-primary"
 				onclick="registrarVenta()">Registrar Venta</button>
 		</div>
-<button id="btnGeneratePdf">Generar PDF</button>
-
-<form action="procesarDataPDF.jsp" target="_blank" method="post">
-  <button id="btnGeneratePdf" type="submit">Generar PDF</button>
-  <input type="hidden" value="pdfTicket" name="key">
-  <input type="text"  value ="16" name="txtVentaId">
+	<div>
+	<form id="pdfForm" action="procesarDataPDF.jsp" target="_blank" method="post" style="display: none">
+    <button id="btnGeneratePdf" type="submit">Generar PDF</button>
+    <input type="hidden" value="pdfTicket" name="key">
+    <input type="text" id="txtVentaId" name="txtVentaId">
 </form>
+	</div>
 </div>
 
 </body>
@@ -122,12 +123,19 @@
             }
         }
     });
+        function generarTicket(ventaId) {
+            // Setea el valor del campo txtVentaId
+            document.getElementById('txtVentaId').value = ventaId;
 
+            // Ejecuta el evento submit del formulario
+            document.getElementById('pdfForm').submit();
+        }
+
+    
 
        function registrarVenta() {
-        console.log(productosAgregados)
-        console.log(totalVenta)
-        console.log(usuarioID)
+        Swal.showLoading();
+   
         var usuarioID =1;
         $.ajax({
             type: "POST",
@@ -139,16 +147,25 @@
                 usuarioID: usuarioID
             },
         }).done(function(resp) {
-            console.log(resp);
+          
             if (resp) {
-                swal({
-                    title: "Venta registrada!!",
-                    icon: "success", // Agregar el ícono de éxito
-                    button: "Aceptar"
-                });
+             		
+        Swal.fire({
+            icon: 'success',
+            title: 'Venta registrada exitosamente',
+            showConfirmButton: true,
+            timer: 1500,
+            onClose: function () {
+                // Esta función se ejecutará cuando se cierre SweetAlert
+                generarTicket(resp.ventaId);
+                limpiarTabla();
+                productosAgregados = [];
+                console.log(productosAgregados)
+                cargarSelectProductos(); 
+                limpiarCampos();
+            }
+         });
 
-                generarTicket(resp)
-                //limpiarform();
             } else {
                 swal("Advertencia", "El registro no se guardo!", "warning");
             }
@@ -156,7 +173,16 @@
             console.log(resp);
         });
     }
- 
+   function limpiarTabla() {
+        // Selecciona el cuerpo de la tabla
+        var tbody = document.querySelector('#tablaProductos tbody');
+
+        // Limpia el contenido del cuerpo de la tabla
+        tbody.innerHTML = '';
+
+        // También puedes restablecer el contenido del totalVenta
+        document.getElementById('totalVenta').textContent = '';
+    }
 
         document.getElementById('productosID').addEventListener('change', function() {
             // Obtén el select
@@ -164,7 +190,7 @@
             
             // Encuentra la opción seleccionada
             var selectedOption = select.options[select.selectedIndex];
-                if (selectedOption) {
+                if (selectedOption && selectedOption.value !="") {
                     // Obtén el stock del atributo data-stock
                  var stock = selectedOption.getAttribute('data-stock');
 
@@ -219,8 +245,19 @@
     // Función para agregar una fila HTML a la tabla
     var totalVenta = 0;
 
+function limpiarCampos() {
+    // Limpia el valor del campo de selección
+    document.getElementById('productosID').value = '';
 
-     function agregarProductoATabla(selectedOption, cantidad) {
+    // Limpia el valor del campo de cantidad
+    document.getElementById('cantidadProducto').value = '';
+
+    // Limpia los mensajes de error si los hubiera
+    document.getElementById('stockDisplay').textContent = '';
+    document.getElementById('cantidadError').textContent = '';
+}
+
+   function agregarProductoATabla(selectedOption, cantidad) {
 
        
         var codigo = selectedOption.getAttribute('data-codigo');
@@ -324,7 +361,7 @@
 
             celdaSubTotal.text(subtotal);
 
-            // Actualiza el total de la venta
+                // Actualiza el total de la venta
             actualizarTotalVenta();
         });
 
@@ -333,6 +370,8 @@
         document.getElementById('totalVenta').textContent = 'Total venta: ' + totalVenta;
 
         tabla.find('tbody').append(nuevaFila);
+    
+            limpiarCampos();
 
     }
 
@@ -359,6 +398,8 @@
 
 	function cargarSelectProductos(id) {
 		var select = document.getElementById("productosID");
+          // Limpiar las opciones actuales
+         select.innerHTML = '';
 		console.log(id)
 		$.ajax({
 			type : "POST",
@@ -368,8 +409,12 @@
 			},
 			success : function(data) {
 				if (Array.isArray(data['productos'])) {
+                        var option = document.createElement("option");
+                    	option.value = "";
+						option.text = "Seleccione un producto";
+						select.appendChild(option);	
 					data['productos'].forEach(function(producto) {
-						var option = document.createElement("option");
+						option = document.createElement("option");
 						option.value = producto.productoId;
 						option.text = producto.nombre;
                         option.setAttribute('data-stock', producto.stock);

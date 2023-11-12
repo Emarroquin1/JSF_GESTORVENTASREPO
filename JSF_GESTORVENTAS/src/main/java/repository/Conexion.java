@@ -33,6 +33,7 @@ public class Conexion implements CategoriaRepository, ProveedorRepository, Produ
 			e.printStackTrace();
 			throw new Exception("Error al cargar el driver: " + e.getMessage());
 		}
+		
 		try {
 
 			String username = "root";

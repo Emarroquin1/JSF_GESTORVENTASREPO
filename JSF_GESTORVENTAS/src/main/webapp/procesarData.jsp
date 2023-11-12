@@ -167,12 +167,13 @@ if (key != null) {
 		// Ejemplo: Imprimir los valores recibidos
 		String arrayProductojson = request.getParameter("arrayProducto");
 		JSONArray detalles = new JSONArray(arrayProductojson);
+  
 
-		ventaService.registrarVenta(detalles, totalVenta, usuarioID);
 
 		System.out.println(detalles);
 		System.out.println("Total de Venta: " + totalVenta);
 		System.out.println("Usuario ID: " + usuarioID);
+		jsonResponse = ventaService.registrarVenta(detalles, totalVenta, usuarioID);
 		break;
 
 	}
