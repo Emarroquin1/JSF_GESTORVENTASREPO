@@ -99,7 +99,8 @@
             }
         });
     });
-    rolUsuario ="admin";
+    var usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
+    rolUsuario = usuarioGuardado.rol;
 	document.addEventListener("DOMContentLoaded", function() {
 	
 			cargarSelectProductos(0);
@@ -134,12 +135,13 @@
             document.getElementById('pdfForm').submit();
         }
 
-    
+        
+        var usuarioID =usuarioGuardado.usuarioID;
 
        function registrarVenta() {
+    	   console.log(usuarioID)
         Swal.showLoading();
-   
-        var usuarioID =1;
+
         $.ajax({
             type: "POST",
             url: "procesarData.jsp", // Ajusta la ruta a tu controlador
@@ -190,7 +192,7 @@
         document.getElementById('productosID').addEventListener('change', function() {
             // Obtén el select
             var select = document.getElementById('productosID');
-            
+            console.log(usuarioGuardado)
             // Encuentra la opción seleccionada
             var selectedOption = select.options[select.selectedIndex];
                 if (selectedOption && selectedOption.value !="") {

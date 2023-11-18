@@ -14,5 +14,7 @@ public interface VentaRepository {
 	  public int registrarVenta(List<DetalleVenta> lista, double totalVenta, int usuarioID) throws Exception; 
 	  
 	  public Venta  findById(int id) throws Exception; 
+	  
+	  public List<Venta> obtenerTodasLasVentasConUsuario() throws Exception;
 		  
 }

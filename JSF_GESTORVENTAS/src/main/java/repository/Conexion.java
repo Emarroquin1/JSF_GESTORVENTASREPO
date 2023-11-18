@@ -16,10 +16,11 @@ import model.Categoria;
 import model.DetalleVenta;
 import model.Producto;
 import model.Proveedor;
+import model.Usuario;
 import model.Venta;
 
 public class Conexion implements CategoriaRepository, ProveedorRepository, ProductoRepository, DetalleVentaRepository,
-		VentaRepository {
+		VentaRepository, UsuarioRepository {
 
 	public final String dbUrl = "jdbc:mysql://localhost:3306/dbventas?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 	public final String driver = "com.mysql.jdbc.Driver";
@@ -970,4 +971,89 @@ public class Conexion implements CategoriaRepository, ProveedorRepository, Produ
             }
         }
     }
+	
+	@Override
+	public Usuario login(Usuario usuario) throws Exception {
+	    Connection con = null;
+	    PreparedStatement stmt = null;
+	    ResultSet rs = null;
+
+	    try {    
+	        con = this.conectar();
+	        String sql = "SELECT * FROM Usuario WHERE correo = ? AND contrasena = ?";
+	        stmt = con.prepareStatement(sql);
+	        stmt.setString(1, usuario.getCorreo());
+	        stmt.setString(2, usuario.getContrasena());
+
+	        rs = stmt.executeQuery();
+
+	        if (!rs.next()) {
+	            return null;  // No se encontró el usuario
+	        }
+
+	        // Se encontró el usuario, crea un objeto Usuario y devuelve
+	        Usuario usuarioEncontrado = new Usuario();
+	        usuarioEncontrado.setUsuarioID(rs.getInt("usuarioID"));
+	        usuarioEncontrado.setDui(rs.getString("dui"));
+	        usuarioEncontrado.setCorreo(rs.getString("correo"));
+	        usuarioEncontrado.setNombre(rs.getString("nombre"));
+	        usuarioEncontrado.setRol(rs.getString("rol"));
+	        usuarioEncontrado.setContrasena(rs.getString("contrasena"));
+	        usuarioEncontrado.setActivo(rs.getBoolean("activo"));
+
+	        return usuarioEncontrado;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw new SQLException("Error al realizar el login: " + e.getMessage());
+	    } finally {
+	        // Cierra recursos
+	        if (rs != null) {
+	            rs.close();
+	        }
+	        if (stmt != null) {
+	            stmt.close();
+	        }
+	        if (con != null) {
+	            con.close();
+	        }
+	    }
+	}
+
+	@Override
+	public List<Venta> obtenerTodasLasVentasConUsuario() throws Exception {
+	    Connection con = this.conectar();
+	    List<Venta> lista = new ArrayList<>();
+
+	    String query = "SELECT V.*, U.correo as usuarioCorreo FROM Ventas V "
+	            + "INNER JOIN Usuario U ON V.usuarioID = U.usuarioID "
+	            + "WHERE V.activo = 1";
+
+	    try {
+	        Statement stmt = con.createStatement();
+	        ResultSet res = stmt.executeQuery(query);
+
+	        while (res.next()) {
+	            Venta venta = new Venta();
+	            venta.setVentasID(res.getInt("ventasID"));
+	            venta.setFecha(res.getString("fecha"));
+	            venta.setTotal(res.getDouble("total"));
+	            venta.setUsuarioID(res.getInt("usuarioID"));
+	            venta.setActivo(res.getBoolean("activo"));
+	            venta.setUsuarioCorreo(res.getString("usuarioCorreo"));
+	  
+	            lista.add(venta);
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new Exception("Error al obtener la lista de ventas: " + e.getMessage());
+	    } finally {
+	        // Cerrar la conexión en el bloque finally para asegurar que siempre se cierre
+	        con.close();
+	    }
+
+	    return lista;
+	}
+
+
 }

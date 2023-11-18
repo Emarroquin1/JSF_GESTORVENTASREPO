@@ -1,3 +1,5 @@
+<%@page import="service.UsuarioService"%>
+<%@page import="model.Usuario"%>
 <%@page import="service.PdfTicket"%>
 <%@page import="service.VentaService"%>
 <%@page import="org.json.JSONArray"%>
@@ -28,11 +30,34 @@ ProductoService productoService = new ProductoService();
 
 VentaService ventaService = new VentaService();
 
+UsuarioService usuarioService = new UsuarioService();
+
 PdfTicket pdf = new PdfTicket();
 
 JSONObject jsonResponse = new JSONObject();
 if (key != null) {
 	switch (key) {
+	
+	case "getVentas":
+		jsonResponse = ventaService.obtenerVentas();
+		break;
+	case "loginUsuario":
+	    String correo = request.getParameter("correo");
+	    String contrasena = request.getParameter("password");
+
+	    // Lógica para procesar el inicio de sesión
+	    // Aquí puedes llamar a tu servicio para verificar las credenciales, similar a tu ejemplo de guardarCategoria
+
+	    // Por ejemplo:
+	    Usuario usuarioLogin = new Usuario();
+	    usuarioLogin.setCorreo(correo);
+	    usuarioLogin.setContrasena(contrasena); 
+
+	    // Llama a tu función de inicio de sesión
+	    jsonResponse = usuarioService.login(usuarioLogin);
+	    break;
+
+	
 	case "modificarCategoria":
 		Categoria categoria = new Categoria();
 		String nombreCategoriaUpdate = request.getParameter("nombreCategoria");

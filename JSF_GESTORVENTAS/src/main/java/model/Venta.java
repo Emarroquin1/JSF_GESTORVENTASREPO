@@ -4,54 +4,64 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class Venta {
-    private int ventasID;
-    private String fecha;
-    private Double total;
-    private int usuarioID;
-    private boolean activo;
+	private int ventasID;
+	private String fecha;
+	private Double total;
+	private int usuarioID;
 
-    // Constructor
-    public Venta() {
-    }
+	public String getUsuarioCorreo() {
+		return usuarioCorreo;
+	}
 
-    // Getters y Setters
-    public int getVentasID() {
-        return ventasID;
-    }
+	public void setUsuarioCorreo(String usuarioCorreo) {
+		this.usuarioCorreo = usuarioCorreo;
+	}
 
-    public void setVentasID(int ventasID) {
-        this.ventasID = ventasID;
-    }
+	private String usuarioCorreo;
+	private boolean activo;
 
-    public String getFecha() {
-        return fecha;
-    }
+	// Constructor
+	public Venta() {
+	}
 
-    public void setFecha(String fecha) {
-        this.fecha = fecha;
-    }
+	// Getters y Setters
+	public int getVentasID() {
+		return ventasID;
+	}
 
-    public Double getTotal() {
-        return total;
-    }
+	public void setVentasID(int ventasID) {
+		this.ventasID = ventasID;
+	}
 
-    public void setTotal(Double total) {
-        this.total = total;
-    }
+	public String getFecha() {
+		return fecha;
+	}
 
-    public int getUsuarioID() {
-        return usuarioID;
-    }
+	public void setFecha(String fecha) {
+		this.fecha = fecha;
+	}
 
-    public void setUsuarioID(int usuarioID) {
-        this.usuarioID = usuarioID;
-    }
+	public Double getTotal() {
+		return total;
+	}
 
-    public boolean isActivo() {
-        return activo;
-    }
+	public void setTotal(Double total) {
+		this.total = total;
+	}
 
-    public void setActivo(boolean activo) {
-        this.activo = activo;
-    }
+	public int getUsuarioID() {
+		return usuarioID;
+	}
+
+	public void setUsuarioID(int usuarioID) {
+		this.usuarioID = usuarioID;
+	}
+
+	public boolean isActivo() {
+		return activo;
+	}
+
+	public void setActivo(boolean activo) {
+		this.activo = activo;
+	}
 }
