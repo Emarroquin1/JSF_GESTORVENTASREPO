@@ -21,6 +21,29 @@
 		<h1>Bienvenido</h1>
 		<h4>Administración de Ventas</h4>
 		<p>Descripcion del sistema.</p>
+		      <!-- Contenido de la descripción -->
+        <p>
+            El sistema "Ventura" es una solución integral diseñada para optimizar y simplificar las operaciones de ventas de empresas minoristas. Con un enfoque centrado en la usabilidad, Ventura ofrece herramientas avanzadas para administrar catálogos de productos, categorías, proveedores y el registro de ventas. Además, proporciona funcionalidades robustas para generar informes detallados sobre cada catálogo y reportes analíticos de ventas.
+        </p>
+
+        <!-- Módulos Principales -->
+        <h5>Módulos Principales:</h5>
+        <ol>
+            <li><strong>Catálogo de Categorías:</strong> Permite la creación, edición y eliminación de categorías para organizar productos de manera eficiente.</li>
+            <li><strong>Catálogo de Proveedores:</strong> Gestión de proveedores con detalles clave como nombre, información de contacto y productos suministrados.</li>
+            <li><strong>Catálogo de Productos:</strong> Manejo completo de productos, incluida la creación, actualización y eliminación...</li>
+            <li><strong>Registro de Ventas:</strong> Proceso intuitivo para registrar ventas, incluidos la informacion de quien realizo la venta y el registro productos vendidos.</li>
+            <li><strong>Reportes Analíticos:</strong> Informes detallados sobre el rendimiento de ventas, productos más vendidos y tendencias...</li>
+            <li><strong>Interfaz de Usuario Intuitiva:</strong> Diseño fácil de usar que permite a los usuarios navegar de manera eficiente por todas las funcionalidades.</li>
+            <li><strong>Impresión de Tickets:</strong> Capacidad para imprimir tickets de venta con detalles claros y profesionales.</li>
+            <li><strong>Generación de Reportes por Catálogo:</strong> Informes específicos para cada catálogo que detallan inventarios, proveedores y categorías.</li>
+            <li><strong>Reporte de Ventas:</strong> Informes exhaustivos que detallan el rendimiento de las ventas.</li>
+        </ol>
+        
+          <!-- Imagen elegante -->
+    <div class="text-center">
+        <img src="ticketLogo.png" alt="Imagen Elegante" class="img-fluid">
+    </div>
 	</div>
 
 

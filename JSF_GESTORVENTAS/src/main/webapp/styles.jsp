@@ -60,5 +60,9 @@ body {
   -webkit-tap-highlight-color: transparent;
   color: white
 }
+
+.modal{
+color: black;
+}
 </style>
 	
