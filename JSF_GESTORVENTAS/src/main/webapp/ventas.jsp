@@ -99,8 +99,7 @@
             }
         });
     });
-    var usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
-    rolUsuario = usuarioGuardado.rol;
+
 	document.addEventListener("DOMContentLoaded", function() {
 	
 			cargarSelectProductos(0);

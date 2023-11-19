@@ -175,15 +175,22 @@ body{
 
                     	  // Almacenar el objeto de usuario en localStorage
                           localStorage.setItem("usuario", JSON.stringify(usuario));
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Inicio de Sesión exitoso!',
-                            text:'Bienvenido: '+usuario.correo,
-                            showConfirmButton: true,                  
-                        });
-                        usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
-						console.log(usuarioGuardado);
-						 window.location.href = 'negocio.jsp';
+             
+
+                          Swal.fire({
+                              icon: 'success',
+                              title: 'Inicio de Sesión exitoso!',
+                              text: 'Bienvenido: ' + usuario.correo,
+                              showConfirmButton: true,
+                          }).then((result) => {
+                              // This code will be executed after the user clicks on the "OK" button
+                              if (result.isConfirmed) {
+                                  usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
+                                  console.log(usuarioGuardado);
+                                  window.location.href = 'negocio.jsp';
+                              }
+                          });
+
                         // Hacer algo después de un inicio de sesión exitoso
                     } else {
                         Swal.fire({

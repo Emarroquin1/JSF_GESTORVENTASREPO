@@ -154,7 +154,7 @@
                               <!-- Modificar -->
 							var buttonModificar = '<button class="btn btn-primary" onclick="modificarCategoria(\'' + data['categorias'][i].nombreCategoria + '\', \'' + data['categorias'][i].descripcion + '\', ' + data['categorias'][i].categoriaId + ')">Modificar</button>';
 							// Eliminar
-                              var buttonEliminar = '<button class="btn btn-danger" onclick="eliminarCategoria(' + data['categorias'][i].categoriaId + ')">Eliminar</button>';
+                              var buttonEliminar = '<button class="btn btn-danger" onclick="confirmarEliminarCategoria(' + data['categorias'][i].categoriaId + ')">Eliminar</button>';
                               // Agregar fila directamente a DataTables
                               table.row.add([
                                   data['categorias'][i].nombreCategoria,
@@ -182,6 +182,30 @@
     document.getElementById("descripcion").value = "";
     document.getElementById("categoriaId").value = "0";
 }
+		
+		
+		function confirmarEliminarCategoria(id) {
+
+	        if (rolUsuario != 'admin') {
+	        	
+	        	mensajeValidador();
+	        	return false;
+	        }
+		    Swal.fire({
+		        title: '¿Estás seguro?',
+		        text: 'Esta acción no se puede deshacer',
+		        icon: 'warning',
+		        showCancelButton: true,
+		        confirmButtonColor: '#d33',
+		        cancelButtonColor: '#3085d6',
+		        confirmButtonText: 'Sí, eliminar'
+		    }).then((result) => {
+		        if (result.isConfirmed) {
+		        	eliminarCategoria(id);
+		        }
+		    });
+		}
+
 		
 	    function modificarCategoria(nombreCategoria, descripcion, categoriaId) {
 	        // Rellena los campos del modal con los datos de la categoría

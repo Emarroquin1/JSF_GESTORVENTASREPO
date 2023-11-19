@@ -138,6 +138,14 @@
 		}
 
 	function eliminarProducto(productoId) {
+		
+		   if (rolUsuario != 'admin') {
+		    	
+		    	mensajeValidador();
+		    	return false;
+		    }
+			
+		
     // Pregunta al usuario si realmente desea eliminar el producto
     Swal.fire({
         title: '¿Estás seguro?',
@@ -150,40 +158,45 @@
     }).then((result) => {
         if (result.isConfirmed) {
             // Si el usuario confirma, realiza la eliminación
-            $.ajax({
-                type: "POST",
-                url: "procesarData.jsp",
-                data: {
-                    key: "eliminarProducto",
-                    productoId: productoId
-                },
-                success: function (data) {
-                    if (data.tipo === "éxito") {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Producto eliminado exitosamente',
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-
-                        cargarTablaProductos();
-                        // Realiza cualquier otra acción necesaria después de eliminar el producto
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Error al eliminar el producto: ' + data.mensaje
-                        });
-                    }
-                },
-                error: function (error) {
-                    console.log("Error en la solicitud AJAX: " + error);
-                }
-            });
+        	eliminarP(productoId);
         }
     });
 }
 
+	function eliminarP(productoId){
+		
+		  $.ajax({
+              type: "POST",
+              url: "procesarData.jsp",
+              data: {
+                  key: "eliminarProducto",
+                  productoId: productoId
+              },
+              success: function (data) {
+                  if (data.tipo === "éxito") {
+                      Swal.fire({
+                          icon: 'success',
+                          title: 'Producto eliminado exitosamente',
+                          showConfirmButton: false,
+                          timer: 1500
+                      });
+
+                      cargarTablaProductos();
+                      // Realiza cualquier otra acción necesaria después de eliminar el producto
+                  } else {
+                      Swal.fire({
+                          icon: 'error',
+                          title: 'Error',
+                          text: 'Error al eliminar el producto: ' + data.mensaje
+                      });
+                  }
+              },
+              error: function (error) {
+                  console.log("Error en la solicitud AJAX: " + error);
+              }
+          });
+		
+	}
 
 		function guardarProducto() {
 			// Obtener los valores de los campos del modal

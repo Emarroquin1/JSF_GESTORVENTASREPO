@@ -95,6 +95,8 @@ function limpiarCampos() {
     $("#proveedorId").val("0");
 }
 
+
+
 function eliminarProveedor(proveedorId) {
     $.ajax({
         type: "POST",
@@ -253,6 +255,14 @@ function cargarTablaProveedores() {
 }
 
 function confirmarEliminarProveedor(proveedorId) {
+	
+
+    if (rolUsuario != 'admin') {
+    	
+    	mensajeValidador();
+    	return false;
+    }
+	
     Swal.fire({
         title: '¿Estás seguro?',
         text: 'Esta acción no se puede deshacer',
