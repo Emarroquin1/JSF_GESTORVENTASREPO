@@ -31,7 +31,7 @@ div.dt-buttons > .dt-button, div.dt-buttons > div.dt-button-split .dt-button {
   cursor: pointer;
   font-size: .88em;
   line-height: 1.6em;
-  color: black;
+  color: white;
   white-space: nowrap;
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.1);
@@ -45,6 +45,20 @@ div.dt-buttons > .dt-button, div.dt-buttons > div.dt-button-split .dt-button {
   outline: none;
   text-overflow: ellipsis;
   border-radius: 8px; /* Bordes redondeados */
+}
+
+body {
+  margin: 0;
+  font-family: var(--bs-body-font-family);
+  font-size: var(--bs-body-font-size);
+  font-weight: var(--bs-body-font-weight);
+  line-height: var(--bs-body-line-height);
+  color: var(--bs-body-color);
+  text-align: var(--bs-body-text-align);
+  background-color: #12182e;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  color: white
 }
 </style>
 	
